@@ -22,7 +22,7 @@ A Fastify-based backend API for a QR-based table ordering system, built with Typ
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd backend-qr-based-table-ordering-system
+cd backend-fastify-setting
 ```
 
 2. Install dependencies:
