@@ -12,3 +12,4 @@ export const BadRequest = z.strictObject({
 
 export type BadRequest = z.infer<typeof BadRequest>
 export type BadRequestIssue = z.infer<typeof BadRequestIssue>
+
