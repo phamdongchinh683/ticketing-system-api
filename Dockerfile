@@ -5,7 +5,8 @@ WORKDIR /app
 
 # Enable Corepack and install dependencies (Yarn 4)
 COPY package.json yarn.lock ./
-COPY .yarn .yarnrc.yml ./
+# In CI, the `.yarn` directory may not be present; only `.yarnrc.yml` is required
+COPY .yarnrc.yml ./
 RUN corepack enable \
   && yarn install
 
