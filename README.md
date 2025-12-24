@@ -16,6 +16,7 @@ A Fastify-based backend API for a QR-based table ordering system, built with Typ
 
 - Node.js (v18 or higher)
 - Yarn (v4.11.0 or higher)
+- Docker & Docker Compose (for database)
 
 ## Installation
 
@@ -30,11 +31,22 @@ cd backend-fastify-setting
 yarn install
 ```
 
-3. Create a `.env` file in the root directory (if needed):
+3. Start the PostgreSQL database using Docker:
 ```bash
+yarn docker:up
+```
+
+4. Create a `.env` file in the root directory:
+```bash
+DB_URL=postgresql://postgres:postgres@localhost:5432/backend_db
 PORT=3000
 HOST=127.0.0.1
 NODE_ENV=development
+```
+
+5. Run database migrations:
+```bash
+yarn migrate
 ```
 
 ## Running the Project
@@ -76,11 +88,18 @@ http://localhost:3000/docs
 - `yarn start` - Start the production server
 - `yarn format` - Format code using Prettier
 - `yarn format:check` - Check code formatting without making changes
+- `yarn migrate` - Run database migrations
+- `yarn migration:create` - Create a new migration
+- `yarn docker:up` - Start PostgreSQL database container
+- `yarn docker:down` - Stop PostgreSQL database container
+- `yarn docker:logs` - View database logs
+- `yarn docker:restart` - Restart database container
 
 ## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
+| `DB_URL` | PostgreSQL connection string | Required |
 | `PORT` | Server port number | `3000` |
 | `HOST` | Server host address | `127.0.0.1` (dev) / `0.0.0.0` (prod) |
 | `NODE_ENV` | Environment mode | `development` |
@@ -97,6 +116,35 @@ src/
 ├── model/         # Data models and schemas
 └── utils/         # Utility functions
 ```
+
+## Database Setup
+
+This project uses PostgreSQL with Docker for local development.
+
+### Starting the Database
+
+```bash
+yarn docker:up
+```
+
+This will start a PostgreSQL 16 container with:
+- **Database**: `backend_db`
+- **User**: `postgres`
+- **Password**: `postgres`
+- **Port**: `5432`
+
+### Database Migrations
+
+After starting the database, run migrations:
+```bash
+yarn migrate
+```
+
+To create a new migration:
+```bash
+yarn migration:create migration_name
+```
+
 
 ## Code Formatting
 

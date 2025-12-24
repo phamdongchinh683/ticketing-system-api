@@ -132,7 +132,6 @@ async function registerApiRoutes(app: FastifyInstance) {
                 },
                 handler,
             })
-
             app.log.debug({ method, url, file }, 'Registered route')
         } catch (err) {
             app.log.error({ err, file }, 'Failed to register route')
@@ -165,7 +164,7 @@ const start = async () => {
         })
 
         await api.register(swaggerUI, {
-            routePrefix: '/docs',
+            routePrefix: '/swagger/docs',
             uiConfig: {
                 docExpansion: 'list',
                 deepLinking: false,
@@ -174,16 +173,15 @@ const start = async () => {
 
         await registerApiRoutes(api)
 
-        const port = parseInt(process.env.PORT ?? '3000', 10)
-        if (isNaN(port) || port < 1 || port > 65535) {
-            throw new Error(
-                `Invalid PORT: ${process.env.PORT}. Must be a number between 1 and 65535`
-            )
-        }
+        const host = process.env.HOST
+        const port = process.env.PORT
 
-        const host = process.env.HOST ?? (isProduction ? '0.0.0.0' : '127.0.0.1')
-        await api.listen({ port, host })
-        api.log.info({ swagger: `http://${host}:${port}/docs` }, 'Server is running')
+        if (!host) throw new Error('env HOST not found')
+        if (!port) throw new Error('env PORT not found')
+
+        api.listen({ host, port: +port }, () => {
+            console.log({ Document: `http://${host}:${port}/swagger/docs` })
+        })
     } catch (err) {
         api.log.error(err)
         process.exit(1)
