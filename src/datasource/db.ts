@@ -1,5 +1,5 @@
 import { CamelCasePlugin, DeduplicateJoinsPlugin, Kysely, PostgresDialect } from 'kysely'
-import { Pool, types } from 'pg'
+import { Pool, type PoolConfig, types } from 'pg'
 
 import { Database } from './type.js'
 
@@ -12,14 +12,21 @@ types.setTypeParser(types.builtins.FLOAT4, toNumber)
 types.setTypeParser(types.builtins.FLOAT8, toNumber)
 types.setTypeParser(types.builtins.NUMERIC, toNumber)
 
-const pool = new Pool({
+const poolConfig: PoolConfig = {
     connectionString: process.env.DB_URL,
-    ssl: {
-        rejectUnauthorized: false,
-    },
     max: 2,
     min: 0,
-})
+}
+
+if (process.env.APP_ENV === 'local') {
+    poolConfig.ssl = false
+} else if (process.env.APP_ENV !== 'local') {
+    poolConfig.ssl = {
+        rejectUnauthorized: false,
+    }
+}
+
+const pool = new Pool(poolConfig)
 
 const dialect = new PostgresDialect({ pool })
 

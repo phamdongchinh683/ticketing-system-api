@@ -1,0 +1,6 @@
+FROM postgres:16-alpine
+
+ENV POSTGRES_DB=app_db \
+    POSTGRES_USER=app_user
+
+EXPOSE 5432

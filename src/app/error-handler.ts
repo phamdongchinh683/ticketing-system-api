@@ -1,11 +1,17 @@
-import { errorCodes } from 'fastify'
+import {
+    errorCodes,
+    type FastifyError,
+    type FastifyInstance,
+    type FastifyReply,
+    type FastifyRequest,
+} from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod'
 import { BadRequest } from '../model/error.js'
 import { HttpErr } from './index.js'
 
-export const errorHandlerPlugin = fastifyPlugin(app => {
-    app.setErrorHandler((err, request, reply) => {
+export const errorHandlerPlugin = fastifyPlugin((app: FastifyInstance) => {
+    app.setErrorHandler((err: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
         if (hasZodFastifySchemaValidationErrors(err)) {
             const body: BadRequest = {
                 issues: err.validation.map(v => ({
