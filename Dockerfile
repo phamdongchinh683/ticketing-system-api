@@ -23,7 +23,8 @@ ENV APP_ENV=local
 
 # Only copy what is needed to run (including Yarn 4 metadata and migration sources)
 COPY package.json yarn.lock kysely.config.ts ./
-COPY .yarn .yarnrc.yml ./
+# In CI, the `.yarn` directory may not be committed; copy only `.yarnrc.yml` which exists
+COPY .yarnrc.yml ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src ./src
