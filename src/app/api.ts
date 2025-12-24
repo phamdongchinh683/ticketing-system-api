@@ -17,6 +17,8 @@ import _ from 'lodash'
 
 dotenv.config()
 
+
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
@@ -33,6 +35,10 @@ const api = Fastify({
     },
     logger: !isProduction,
 }).withTypeProvider<ZodTypeProvider>()
+
+api.get('/health', async () => {
+    return { message: 'ok' }
+  })
 
 api.setValidatorCompiler(validatorCompiler)
 api.setSerializerCompiler(serializerCompiler)
@@ -173,15 +179,13 @@ const start = async () => {
 
         await registerApiRoutes(api)
 
-        const host = process.env.HOST
-        const port = process.env.PORT
+        const host = process.env.HOST || '0.0.0.0'
+        const port = process.env.PORT || 3000
+
 
         if (!host) throw new Error('env HOST not found')
         if (!port) throw new Error('env PORT not found')
-
-        api.listen({ host, port: +port }, () => {
-            console.log({ Document: `http://${host}:${port}/swagger/docs` })
-        })
+        api.listen({ host, port: +port })
     } catch (err) {
         api.log.error(err)
         process.exit(1)
