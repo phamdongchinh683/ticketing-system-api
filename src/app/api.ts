@@ -11,13 +11,14 @@ import { readdirSync, statSync } from 'fs'
 import path, { dirname, parse, relative, sep } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { errorHandlerPlugin } from './error-handler.js'
-import dotenv from 'dotenv'
 import QueryString from 'qs'
 import _ from 'lodash'
 
-dotenv.config()
 
-
+if (process.env.NODE_ENV !== 'production') {
+    const dotenv = await import('dotenv')
+    dotenv.config()
+}
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -33,12 +34,14 @@ const api = Fastify({
             return parsed
         },
     },
-    logger: !isProduction,
+    logger: {
+        level: isProduction ? 'info' : 'debug'
+      }
 }).withTypeProvider<ZodTypeProvider>()
 
-api.get('/health', async () => {
+api.get('/', async () => {
     return { message: 'ok' }
-  })
+})
 
 api.setValidatorCompiler(validatorCompiler)
 api.setSerializerCompiler(serializerCompiler)
@@ -179,13 +182,12 @@ const start = async () => {
 
         await registerApiRoutes(api)
 
-        const host = process.env.HOST || '0.0.0.0'
-        const port = process.env.PORT || 3000
+        const port = process.env.PORT
 
 
-        if (!host) throw new Error('env HOST not found')
         if (!port) throw new Error('env PORT not found')
-        api.listen({ host, port: +port })
+            
+        await api.listen({ host: '0.0.0.0', port: +port })
     } catch (err) {
         api.log.error(err)
         process.exit(1)
