@@ -31,7 +31,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t phamdongchinh683/backend-fastify:latest ./'
+                sh 'docker build -f Dockerfile.prod -t phamdongchinh683/backend-fastify:latest .'
             }
         }
 
@@ -49,8 +49,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'aws-ec2-key', keyFileVariable: 'PEM')]) {
-                    sh 'ssh -i $PEM ubuntu@ec2-100-31-102-67.compute-1.amazonaws.com 
-                    "docker pull phamdongchinh683/backend-fastify:latest && docker-compose up -d"'
+                    sh '''
+                        chmod 600 $PEM
+                        ssh -i $PEM -o StrictHostKeyChecking=no ubuntu@ec2-100-31-102-67.compute-1.amazonaws.com "docker pull phamdongchinh683/backend-fastify:latest && docker-compose up -d"
+                    '''
                 }
             }
         }
