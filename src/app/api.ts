@@ -185,8 +185,8 @@ const start = async () => {
 
         await registerApiRoutes(api)
 
-        const port = process.env.PORT || 3000
-        const host = process.env.HOST || '0.0.0.0'
+        const port = process.env.PORT
+        const host = process.env.HOST
 
         if (!port) throw new Error('env PORT not found')
         if (!host) throw new Error('env HOST not found')
