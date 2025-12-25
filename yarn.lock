@@ -954,9 +954,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"backend-qr-based-table-ordering-system@workspace:.":
+"backend-fastify-setting@workspace:.":
   version: 0.0.0-use.local
-  resolution: "backend-qr-based-table-ordering-system@workspace:."
+  resolution: "backend-fastify-setting@workspace:."
   dependencies:
     "@fastify/swagger": "npm:^9.6.1"
     "@fastify/swagger-ui": "npm:^5.2.3"

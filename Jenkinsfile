@@ -18,9 +18,24 @@ pipeline {
             }
         }
 
+        stage('Setup') {
+            steps {
+                sh '''
+                    corepack enable || true
+                    node --version
+                    yarn --version
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'yarn install'
+                sh '''
+                    # Enable corepack for Yarn 4
+                    corepack enable || true
+                    # Install dependencies (use --immutable for CI, or --mode=update-lockfile if lockfile needs updating)
+                    yarn install --immutable || yarn install --mode=update-lockfile
+                '''
             }
         }
 
