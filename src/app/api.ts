@@ -14,7 +14,6 @@ import { errorHandlerPlugin } from './error-handler.js'
 import QueryString from 'qs'
 import _ from 'lodash'
 
-
 if (process.env.NODE_ENV !== 'production') {
     const dotenv = await import('dotenv')
     dotenv.config()
@@ -35,12 +34,16 @@ const api = Fastify({
         },
     },
     logger: {
-        level: isProduction ? 'info' : 'debug'
-      }
+        level: isProduction ? 'info' : 'debug',
+    },
 }).withTypeProvider<ZodTypeProvider>()
 
 api.get('/', async () => {
-    return { message: 'ok' }
+    return { message: 'OK' }
+})
+
+api.get('/health', async () => {
+    return { message: 'OK' }
 })
 
 api.setValidatorCompiler(validatorCompiler)
@@ -182,12 +185,13 @@ const start = async () => {
 
         await registerApiRoutes(api)
 
-        const port = process.env.PORT
-
+        const port = process.env.PORT || 3000
+        const host = process.env.HOST || '0.0.0.0'
 
         if (!port) throw new Error('env PORT not found')
-            
-        await api.listen({ host: '0.0.0.0', port: +port })
+        if (!host) throw new Error('env HOST not found')
+
+        await api.listen({ host, port: +port })
     } catch (err) {
         api.log.error(err)
         process.exit(1)
