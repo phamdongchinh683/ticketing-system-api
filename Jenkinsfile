@@ -10,8 +10,11 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/phamdongchinh683/backend-fastify-setting',
-                    credentialsId: 'github-token'
+                script {
+                    checkout scm
+                    env.BRANCH_NAME = env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceFirst(/^origin\//, '') ?: 'main'
+                    echo "Building branch: ${env.BRANCH_NAME}"
+                }
             }
         }
 
