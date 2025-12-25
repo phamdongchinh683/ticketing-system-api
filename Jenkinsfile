@@ -4,7 +4,7 @@ pipeline {
     environment {
         REPO_URL = 'https://github.com/phamdongchinh683/backend-fastify-setting.git'
         NODE_VERSION = '22'
-        SSH_HOST = credentials('ssh-host') ?: 'your-server-ip-or-hostname'
+        SSH_HOST = credentials('ssh-host') ?: 'ec2-100-31-102-67.compute-1.amazonaws.com'
         SSH_USER = credentials('ssh-user') ?: 'ubuntu'
     }
 
