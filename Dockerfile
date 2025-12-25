@@ -2,7 +2,7 @@
   WORKDIR /app
   
   COPY package.json yarn.lock .yarnrc.yml ./
-  RUN corepack enable && yarn install --immutable
+  RUN corepack enable && yarn install
   
   COPY . .
   RUN yarn build
@@ -13,7 +13,7 @@
   ENV NODE_ENV=production
   
   COPY package.json yarn.lock .yarnrc.yml ./
-  RUN corepack enable && yarn install --immutable --production
+  RUN corepack enable && yarn install
   
   COPY --from=builder /app/dist ./dist
   
