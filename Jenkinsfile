@@ -21,10 +21,9 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
                     sh '''
-                        pwd
-                        ls -la
-                        install -m 600 "$ENV_FILE" .env
-                        cat .env
+                        cat "$ENV_FILE" \
+                            | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' \
+                            > .env
                     '''
                 }
             }
