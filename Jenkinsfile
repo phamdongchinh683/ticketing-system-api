@@ -21,11 +21,11 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
                     sh '''
-                echo "Loading env from $ENV_FILE"
-                cat "$ENV_FILE" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' > .env
-                echo ".env generated:"
-                cat .env
-            '''
+                        echo "Loading env from $ENV_FILE"
+                        cat "$ENV_FILE" | jq -r '. | to_entries[] | .key + "=" + .value' > .env
+                        echo "Generated .env:"
+                        cat .env
+                        '''
                 }
             }
         }
