@@ -18,6 +18,8 @@ const poolConfig: PoolConfig = {
     min: 0,
 }
 
+console.log('process.env.APP_ENV', process.env.APP_ENV)
+console.log('process.env.DB_URL', process.env.DB_URL)
 if (process.env.APP_ENV === 'local') {
     poolConfig.ssl = false
 } else if (process.env.APP_ENV !== 'local') {
