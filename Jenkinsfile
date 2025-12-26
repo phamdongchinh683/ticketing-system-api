@@ -38,8 +38,8 @@ pipeline {
         stage ("Deploy to Production") {
             steps {
                 sh '''
-                    docker pull phamdongchinh683/backend-fastify:latest
-                    docker compose -f docker-compose.prod.yml up -d
+                    docker-compose -f docker-compose.prod.yml pull
+                    docker-compose -f docker-compose.prod.yml up -d
                 '''
             }
         }
