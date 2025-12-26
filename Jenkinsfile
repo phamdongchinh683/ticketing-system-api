@@ -21,7 +21,9 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
                     sh '''
-                        cp $ENV_FILE .env
+                        pwd
+                        ls -la
+                        install -m 600 "$ENV_FILE" .env
                         cat .env
                     '''
                 }
