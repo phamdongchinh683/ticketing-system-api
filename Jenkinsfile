@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_USER = credentials('dockerhub-creds') 
         DOCKER_PASS = credentials('dockerhub-creds')
-        GITHUB_TOKEN = credentials('github')
+        GITHUB_TOKEN = credentials('git')
     }
 
     stages {
