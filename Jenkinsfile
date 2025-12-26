@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_USER = credentials('dockerhub-creds') 
         DOCKER_PASS = credentials('dockerhub-creds')
-        GITHUB_TOKEN = credentials('github-token')
+        GITHUB_TOKEN = credentials('github')
     }
 
     stages {
@@ -64,15 +64,15 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'aws-ec2-key', keyFileVariable: 'PEM')]) {
-                    sh '''
-                        chmod 600 $PEM
-                        ssh -i $PEM -o StrictHostKeyChecking=no ubuntu@ec2-100-31-102-67.compute-1.amazonaws.com "docker pull phamdongchinh683/backend-fastify:latest && docker-compose up -d"
-                    '''
-                }
-            }
-        }
+        // stage('Deploy') {
+        //     steps {
+        //         withCredentials([sshUserPrivateKey(credentialsId: 'aws-ec2-key', keyFileVariable: 'PEM')]) {
+        //             sh '''
+        //                 chmod 600 $PEM
+        //                 ssh -i $PEM -o StrictHostKeyChecking=no ubuntu@ec2-100-31-102-67.compute-1.amazonaws.com "docker pull phamdongchinh683/backend-fastify:latest && docker-compose up -d"
+        //             '''
+        //         }
+        //     }
+        // }
     }
 }
