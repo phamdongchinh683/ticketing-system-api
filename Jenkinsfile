@@ -22,7 +22,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
                     sh '''
                         echo "Loading env from $ENV_FILE"
-                        cat "$ENV_FILE" | jq -r '. | to_entries[] | .key + "=" + .value' > .env
+                        cat "$ENV_FILE" | jq -r '. | to_entries[] | .key + "=" + (.value | tostring)' > .env
                         echo "Generated .env:"
                         cat .env
                         '''
