@@ -4,7 +4,6 @@ services:
   api:
     image: phamdongchinh683/backend-fastify:latest
     container_name: backend-api
-    pull_policy: always
     env_file:
       - .env
     expose:

@@ -44,8 +44,8 @@ pipeline {
         stage ("Deploy to Production") {
             steps {
                 sh '''
-                    docker compose -f docker-compose.prod.yml pull
-                    docker compose -f docker-compose.prod.yml up -d
+                    docker-compose -f docker-compose.prod.yml pull
+                    docker-compose -f docker-compose.prod.yml up -d --build
                     curl -X GET http://localhost:3000/health
                 '''
             }
