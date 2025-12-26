@@ -17,16 +17,25 @@ pipeline {
             }
         }
 
+        stage('Load Production Environment') {
+            steps {
+                withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
+                    sh '''
+                        cp $ENV_FILE .env
+                        cat .env
+                    '''
+                }
+            }
+        }
+
         stage('Setup') {
             steps {
                 sh '''
-                    echo "Setting up Node.js and Yarn..."
                     node -v
                     npm -v
-                    corepack enable || echo "Corepack already enabled or not available"
+                    corepack enable
                     corepack prepare yarn@4.11.0 --activate
                     yarn -v
-                    echo "Setup complete"
                 '''
             }
         }
@@ -40,9 +49,12 @@ pipeline {
             }
         }
 
-        stage('Migrate') {
+        stage('Migrate & Test') {
             steps {
-                sh 'yarn migrate'
+                sh '''
+                    yarn migrate
+                    yarn start
+                '''
             }
         }
 
