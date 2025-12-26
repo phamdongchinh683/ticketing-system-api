@@ -7,38 +7,14 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                checkout scm
-                script {
-                    env.BRANCH_NAME = env.BRANCH_NAME ?: 'main'
-                    echo "Building branch: ${env.BRANCH_NAME}"
-                }
-            }
-        }
-
         stage('Load Production Environment') {
             steps {
                 withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
                     sh '''
-                        echo "Loading env from $ENV_FILE"
                         cat "$ENV_FILE" | jq -r '. | to_entries[] | .key + "=" + (.value | tostring)' > .env
-                        echo "Generated .env:"
                         cat .env
                         '''
                 }
-            }
-        }
-
-        stage('Setup') {
-            steps {
-                sh '''
-                    node -v
-                    npm -v
-                    corepack enable
-                    corepack prepare yarn@4.11.0 --activate
-                    yarn -v
-                '''
             }
         }
 
@@ -59,31 +35,14 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage ("Deploy to Production") {
             steps {
-                sh """
-                docker build \
-                  -t ${IMAGE_NAME}:${BUILD_NUMBER} \
-                  -t ${IMAGE_NAME}:latest \
-                  -f Dockerfile.prod .
-                """
+                sh '''
+                    docker pull phamdongchinh683/backend-fastify:latest
+                    docker compose -f docker-compose.prod.yml up -d
+                '''
             }
         }
 
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh '''
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker push ${IMAGE_NAME}:${BUILD_NUMBER}
-                        docker push ${IMAGE_NAME}:latest
-                    '''
-                }
-            }
-        }
     }
 }
