@@ -6,7 +6,6 @@ const __filename = new URL('', import.meta.url).pathname
 api.route({
     ...endpoint(__filename),
     handler: async request => {
-        console.log(request.params, ' alo')
         return {
             message: 'OK',
         }

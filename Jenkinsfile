@@ -55,7 +55,6 @@ pipeline {
             steps {
                 sh '''
                     yarn migrate
-                    yarn start
                 '''
             }
         }
