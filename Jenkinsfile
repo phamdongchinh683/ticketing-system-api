@@ -15,7 +15,8 @@ pipeline {
         stage('Setup') {
             steps {
                 sh '''
-                    corepack enable || true
+                    npm install -g yarn@4.11.0 || npm install -g yarn@latest
+                    
                     node --version
                     yarn --version
                 '''
@@ -25,8 +26,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    corepack enable || true
-                    yarn install 
+                    yarn install --immutable || yarn install --mode=update-lockfile || yarn install
                 '''
             }
         }
