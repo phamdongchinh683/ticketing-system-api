@@ -186,7 +186,6 @@ const start = async () => {
         if (!host) throw new Error('env HOST not found')
 
         await api.listen({ host, port: +port })
-        api.log.info({ swagger: `http://${host}:${port}/swagger/docs` })
     } catch (err) {
         api.log.error(err)
         process.exit(1)
