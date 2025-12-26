@@ -13,13 +13,9 @@ import { fileURLToPath, pathToFileURL } from 'url'
 import { errorHandlerPlugin } from './error-handler.js'
 import QueryString from 'qs'
 import _ from 'lodash'
+import dotenv from 'dotenv'
 
-const dotenv = await import('dotenv')
-if (process.env.APP_ENV === 'production') {
-    dotenv.config({ path: '.env.production' })
-} else {
-    dotenv.config()
-}
+dotenv.config()
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -39,10 +35,6 @@ const api = Fastify({
         level: isProduction ? 'info' : 'debug',
     },
 }).withTypeProvider<ZodTypeProvider>()
-
-api.get('/', async () => {
-    return { message: 'OK' }
-})
 
 api.get('/health', async () => {
     return { message: 'OK' }
@@ -194,6 +186,7 @@ const start = async () => {
         if (!host) throw new Error('env HOST not found')
 
         await api.listen({ host, port: +port })
+        api.log.info({ swagger: `http://${host}:${port}/swagger/docs` })
     } catch (err) {
         api.log.error(err)
         process.exit(1)

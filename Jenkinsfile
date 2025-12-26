@@ -7,6 +7,12 @@ pipeline {
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Load Production Environment') {
             steps {
                 withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
@@ -27,7 +33,7 @@ pipeline {
             }
         }
 
-        stage('Migrate & Test') {
+        stage('Migrate') {
             steps {
                 sh '''
                     yarn migrate
@@ -40,6 +46,7 @@ pipeline {
                 sh '''
                     docker-compose -f docker-compose.prod.yml pull
                     docker-compose -f docker-compose.prod.yml up -d
+                    curl -X GET http://localhost:3000/health
                 '''
             }
         }

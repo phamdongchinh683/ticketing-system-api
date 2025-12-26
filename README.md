@@ -56,23 +56,11 @@ NODE_ENV=development
 
 ### 4. Start the Database
 
-#### Option A: Using Docker Compose (Recommended)
+Start the database using Docker Compose:
 
 ```bash
-# Start database and app together
-docker compose up -d
-
-# Or start only the database
-docker compose up -d db
+docker compose -f docker-compose.db.yml up -d
 ```
-
-#### Option B: Standalone Database
-
-```bash
-docker compose -f docker-compose.dev.yml up -d
-```
-# Env 
-DATABASE_URL=postgresql://dev:dev@localhost:5433/app_dev
 
 ### 5. Run Database Migrations
 
@@ -107,15 +95,17 @@ yarn start
 #### Docker Production
 
 ```bash
-# Build and run with Docker Compose
-docker compose up --build
+# Build the Docker image
+docker build -t phamdongchinh683/backend-fastify:latest -f Dockerfile.prod .
 
-# Or build and run separately
-docker build -t backend-fastify-app .
+# Run the container
 docker run -p 3000:3000 \
-  -e APP_ENV=local \
+  -e APP_ENV=production \
   -e DB_URL=postgres://app_user:app_password@localhost:5432/app_db \
-  backend-fastify-app
+  phamdongchinh683/backend-fastify:latest
+
+# Or use docker-compose for production
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ## 📖 API Documentation
@@ -134,54 +124,43 @@ The API documentation includes:
 
 ## 🐳 Docker Setup
 
-### Docker Compose
+### Docker Compose Files
 
-The project includes a `docker-compose.yml` file that sets up:
+The project includes two Docker Compose files:
 
-- **PostgreSQL Database** (`db` service)
-  - Image: `postgres:16-alpine`
+- **`docker-compose.db.yml`** - Database service for local development
+  - PostgreSQL 15
   - Database: `app_db`
   - User: `app_user`
   - Password: `app_password`
   - Port: `5432`
-  - Persistent volume: `db_data`
+  - Persistent volume: `pg_data`
 
-- **Fastify Application** (`app` service)
-  - Built from `Dockerfile`
-  - Automatically runs migrations on startup
+- **`docker-compose.prod.yml`** - Production deployment
+  - Pulls `phamdongchinh683/backend-fastify:latest` image
+  - Uses `.env` file for configuration
   - Port: `3000`
-  - Depends on `db` service
 
 #### Docker Compose Commands
 
 ```bash
-# Start all services
-yarn docker:up
-# or
-docker compose up -d
+# Start database for local development
+docker compose -f docker-compose.db.yml up -d
 
-# Stop all services
-yarn docker:down
-# or
-docker compose down
+# Stop database
+docker compose -f docker-compose.db.yml down
 
-# View logs
-yarn docker:logs
-# or
-docker compose logs -f
+# View database logs
+docker compose -f docker-compose.db.yml logs -f
 
-# Restart services
-yarn docker:restart
-# or
-docker compose restart
-
-# Rebuild and start
-docker compose up --build
+# Production deployment
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ### Dockerfile
 
-The project includes a multi-stage `Dockerfile`:
+The project includes `Dockerfile.prod` for production builds:
 
 - **Builder stage**: Installs dependencies and builds TypeScript
 - **Runner stage**: Minimal runtime image with compiled code
@@ -189,8 +168,7 @@ The project includes a multi-stage `Dockerfile`:
 The Dockerfile:
 - Uses Node.js 22 Alpine for smaller image size
 - Enables Corepack for Yarn 4 support
-- Includes migration files and Kysely config
-- Runs migrations automatically before starting the app
+- Includes compiled code from builder stage
 
 ## 🗄️ Database Setup
 
@@ -210,9 +188,6 @@ The default database setup uses:
 ```bash
 # Run all pending migrations
 yarn migrate
-
-# Or using Docker
-docker compose exec app yarn migrate
 ```
 
 #### Create a New Migration
@@ -248,10 +223,6 @@ postgres://[user]:[password]@[host]:[port]/[database]
 | `yarn migrate` | Run database migrations |
 | `yarn migration:create` | Create a new migration file |
 | `yarn migration:down` | Rollback last migration |
-| `yarn docker:up` | Start Docker Compose services |
-| `yarn docker:down` | Stop Docker Compose services |
-| `yarn docker:logs` | View Docker Compose logs |
-| `yarn docker:restart` | Restart Docker Compose services |
 
 ## 🔧 Environment Variables
 
@@ -296,10 +267,11 @@ backend-fastify-setting/
 ├── dist/                 # Compiled JavaScript (generated)
 ├── .github/
 │   └── workflows/
-│       └── docker.yml    # CI/CD pipeline for Docker Hub
-├── Dockerfile            # Production Docker image
-├── docker-compose.yml    # Docker Compose configuration
-├── docker-compose.dev.yml # Development Docker Compose
+│       └── docker.yml    # GitHub Actions CI/CD pipeline
+├── Dockerfile.prod       # Production Docker image
+├── docker-compose.db.yml # Database Docker Compose configuration
+├── docker-compose.prod.yml # Production Docker Compose configuration
+├── Jenkinsfile           # Jenkins CI/CD pipeline
 ├── kysely.config.ts      # Kysely migration configuration
 ├── package.json
 ├── tsconfig.json
@@ -308,24 +280,33 @@ backend-fastify-setting/
 
 ## 🚢 CI/CD
 
-The project includes GitHub Actions workflow (`.github/workflows/docker.yml`) that:
+The project includes CI/CD pipelines for automated Docker builds and deployments:
 
+### GitHub Actions
+
+GitHub Actions workflow (`.github/workflows/docker.yml`) that:
 - Builds Docker image on push to `dev` branch
 - Pushes image to Docker Hub
 - Tags images with `latest` and commit SHA
 
-### Setup CI/CD
+**Setup:**
+1. Create a repository on Docker Hub
+2. Add GitHub Secrets: `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`
+3. Push to `dev` branch to trigger the workflow
 
-1. **Create Docker Hub Repository**
-   - Create a repository on Docker Hub (e.g., `your-username/backend-fastify-setting`)
+### Jenkins
 
-2. **Add GitHub Secrets**
-   - Go to repository Settings → Secrets and variables → Actions
-   - Add `DOCKERHUB_USERNAME`: Your Docker Hub username
-   - Add `DOCKERHUB_TOKEN`: Docker Hub access token
+Jenkins pipeline (`Jenkinsfile`) that:
+- Loads production environment variables
+- Installs dependencies and builds the project
+- Runs database migrations
+- Deploys to production using `docker-compose.prod.yml`
 
-3. **Push to `dev` Branch**
-   - The workflow will automatically build and push the image
+**Setup:**
+1. Configure Jenkins credentials:
+   - `env`: JSON file with environment variables
+   - `dockerhub-creds`: Docker Hub username/password (if needed)
+2. The pipeline will build and deploy automatically on trigger
 
 ## 🐛 Troubleshooting
 
@@ -337,15 +318,15 @@ The project includes GitHub Actions workflow (`.github/workflows/docker.yml`) th
 - Verify you're connecting to the correct database instance
 - Reset the database volume:
   ```bash
-  docker compose down -v
-  docker compose up -d db
+  docker compose -f docker-compose.db.yml down -v
+  docker compose -f docker-compose.db.yml up -d
   ```
 
-**Error: `getaddrinfo ENOTFOUND app-db`**
+**Error: `getaddrinfo ENOTFOUND`**
 
-- This occurs when the app container can't resolve the database hostname
-- Ensure both containers are on the same Docker network
-- Use `localhost` instead of `app-db` if running app outside Docker
+- This occurs when the app can't resolve the database hostname
+- Ensure the database container is running: `docker ps`
+- Verify the database connection string in your `.env` file matches the database service
 
 ### Migration Issues
 
@@ -366,6 +347,12 @@ The project includes GitHub Actions workflow (`.github/workflows/docker.yml`) th
 - The `.yarn` directory may not be committed to git
 - The Dockerfile handles this by only copying `.yarnrc.yml`
 - Ensure `.yarnrc.yml` exists in the project root
+
+**Error: `docker: not found`**
+
+- Docker is not installed or not in PATH on the Jenkins agent
+- Install Docker on the Jenkins agent or use an agent with Docker pre-installed
+- Ensure Docker socket is accessible if using Docker-in-Docker
 
 ## 🧪 Development
 
