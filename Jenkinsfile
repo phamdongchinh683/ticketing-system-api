@@ -1,12 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_USER = credentials('dockerhub-creds') 
-        DOCKER_PASS = credentials('dockerhub-creds')
-        GITHUB_TOKEN = credentials('git')
-    }
-
     stages {
         stage('Checkout') {
             steps {
