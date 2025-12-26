@@ -1,70 +1,64 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "phamdongchinh683/backend-fastify"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
+                checkout scm
                 script {
-                    checkout scm
-                    env.BRANCH_NAME = env.BRANCH_NAME ?: env.GIT_BRANCH?.replaceFirst(/^origin\//, '') ?: 'main'
+                    env.BRANCH_NAME = env.BRANCH_NAME ?: 'main'
                     echo "Building branch: ${env.BRANCH_NAME}"
                 }
             }
         }
 
-        stage('Setup') {
+        stage('Install & Build') {
             steps {
                 sh '''
-                    npm install -g yarn@4.11.0 || npm install -g yarn@latest
-                    
-                    node --version
-                    yarn --version
+                    node -v
+                    yarn -v
+                    yarn install --frozen-lockfile
+                    yarn build
                 '''
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Migrate') {
             steps {
-                sh '''
-                    yarn install --immutable || yarn install --mode=update-lockfile || yarn install
-                '''
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh 'yarn build'
                 sh 'yarn migrate'
-                sh 'yarn start'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -f Dockerfile.prod -t phamdongchinh683/backend-fastify:latest .'
+                sh """
+                docker build \
+                  -t ${IMAGE_NAME}:${BUILD_NUMBER} \
+                  -t ${IMAGE_NAME}:latest \
+                  -f Dockerfile.prod .
+                """
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', 
-                                                usernameVariable: 'DOCKER_USER', 
-                                                passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh 'docker push phamdongchinh683/backend-fastify:latest'
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push ${IMAGE_NAME}:${BUILD_NUMBER}
+                        docker push ${IMAGE_NAME}:latest
+                    '''
                 }
             }
         }
-
-        // stage('Deploy') {
-        //     steps {
-        //         withCredentials([sshUserPrivateKey(credentialsId: 'aws-ec2-key', keyFileVariable: 'PEM')]) {
-        //             sh '''
-        //                 chmod 600 $PEM
-        //                 ssh -i $PEM -o StrictHostKeyChecking=no ubuntu@ec2-100-31-102-67.compute-1.amazonaws.com "docker pull phamdongchinh683/backend-fastify:latest && docker-compose up -d"
-        //             '''
-        //         }
-        //     }
-        // }
     }
 }

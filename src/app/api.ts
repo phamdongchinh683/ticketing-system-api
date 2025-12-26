@@ -14,8 +14,10 @@ import { errorHandlerPlugin } from './error-handler.js'
 import QueryString from 'qs'
 import _ from 'lodash'
 
-if (process.env.NODE_ENV !== 'production') {
-    const dotenv = await import('dotenv')
+const dotenv = await import('dotenv')
+if (process.env.APP_ENV === 'production') {
+    dotenv.config({ path: '.env.production' })
+} else {
     dotenv.config()
 }
 
