@@ -20,11 +20,12 @@ pipeline {
         stage('Load Production Environment') {
             steps {
                 withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
-                    script {
-                        sh $/
-                            cat "$ENV_FILE" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' > .env
-                        /$
-                    }
+                    sh '''
+                echo "Loading env from $ENV_FILE"
+                cat "$ENV_FILE" | jq -r 'to_entries | .[] | "\(.key)=\(.value)"' > .env
+                echo ".env generated:"
+                cat .env
+            '''
                 }
             }
         }
