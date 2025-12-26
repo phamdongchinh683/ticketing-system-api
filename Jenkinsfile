@@ -17,12 +17,24 @@ pipeline {
             }
         }
 
+        stage('Setup') {
+            steps {
+                sh '''
+                    echo "Setting up Node.js and Yarn..."
+                    node -v
+                    npm -v
+                    corepack enable || echo "Corepack already enabled or not available"
+                    corepack prepare yarn@4.11.0 --activate
+                    yarn -v
+                    echo "Setup complete"
+                '''
+            }
+        }
+
         stage('Install & Build') {
             steps {
                 sh '''
-                    node -v
-                    yarn -v
-                    yarn install --frozen-lockfile
+                    yarn install
                     yarn build
                 '''
             }
