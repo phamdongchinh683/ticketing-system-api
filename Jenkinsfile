@@ -37,20 +37,20 @@ pipeline {
                 '''
             }
         }
-
-        stage('Migrate') {
-            steps {
-                sh '''
-                    yarn migrate
-                '''
-            }
-        }
-
+        
         stage ("Deploy") {
             steps {
                 sh '''
                     docker-compose -f docker-compose.prod.yml pull --quiet
                     docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+                '''
+            }
+        }
+
+        stage('Migrate') {
+            steps {
+                sh '''
+                    yarn migrate
                 '''
             }
         }
