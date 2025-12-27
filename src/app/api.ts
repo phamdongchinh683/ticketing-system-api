@@ -36,10 +36,6 @@ const api = Fastify({
     },
 }).withTypeProvider<ZodTypeProvider>()
 
-api.get('/health', async () => {
-    return { message: 'OK' }
-})
-
 api.setValidatorCompiler(validatorCompiler)
 api.setSerializerCompiler(serializerCompiler)
 
@@ -65,7 +61,7 @@ api.addHook('preSerialization', async (request, reply, response) => {
 export const bearer = [{ bearerAuth: [] }]
 
 export const endpoint = (filename: string): { method: string; url: string } => {
-    const method = parse(filename).name
+    const method = parse(filename).name.toUpperCase()
     const normalizedPath = filename.replace(/\.(ts|js)$/, '')
     let url = dirname(relative(apiDir, normalizedPath))
 
@@ -85,63 +81,31 @@ export const tags = (filename: string): string[] => [
     relative(__dirname, filename).replace('../api/', '').split(sep)[0],
 ]
 
-async function registerApiRoutes(app: FastifyInstance) {
+async function apiRouter(app: FastifyInstance) {
     const files: string[] = []
     const allowedExtensions = ['.ts', '.js']
 
     const walk = (dir: string) => {
-        try {
-            const entries = readdirSync(dir)
-            for (const entry of entries) {
-                const fullPath = path.join(dir, entry)
-                try {
-                    const stat = statSync(fullPath)
-                    if (stat.isDirectory()) {
-                        walk(fullPath)
-                    } else if (
-                        stat.isFile() &&
-                        allowedExtensions.includes(path.extname(fullPath))
-                    ) {
-                        files.push(fullPath)
-                    }
-                } catch (err) {
-                    app.log.warn({ err, path: fullPath }, 'Failed to stat file/directory')
-                }
+        const entries = readdirSync(dir)
+        for (const entry of entries) {
+            const fullPath = path.join(dir, entry)
+            const stat = statSync(fullPath)
+            if (stat.isDirectory()) {
+                walk(fullPath)
+            } else if (stat.isFile() && allowedExtensions.includes(path.extname(fullPath))) {
+                files.push(fullPath)
             }
-        } catch (err) {
-            app.log.error({ err, dir }, 'Failed to read directory')
-            throw err
         }
     }
 
     walk(apiDir)
 
+    const registeredRoutes: Array<{ method: string; url: string; file: string }> = []
+
     for (const file of files) {
-        try {
-            const { method, url } = endpoint(file)
-            const mod = await import(pathToFileURL(file).href)
-            const handler = mod.handler ?? mod.default
-
-            if (typeof handler !== 'function') {
-                app.log.debug({ file }, 'Skipping file without handler function')
-                continue
-            }
-
-            const routeSchema = mod.schema
-
-            app.route({
-                method: method.toUpperCase() as HTTPMethods,
-                url,
-                schema: {
-                    ...(routeSchema ?? {}),
-                    tags: routeSchema?.tags ?? tags(file),
-                },
-                handler,
-            })
-            app.log.debug({ method, url, file }, 'Registered route')
-        } catch (err) {
-            app.log.error({ err, file }, 'Failed to register route')
-        }
+        const { method, url } = endpoint(file)
+        await import(pathToFileURL(file).href)
+        registeredRoutes.push({ method, url, file: relative(apiDir, file) })
     }
 }
 
@@ -153,7 +117,7 @@ const start = async () => {
             openapi: {
                 info: {
                     title: 'API',
-                    description: 'API documentation for the QR-based table ordering system',
+                    description: 'API documentation for the backend',
                     version: '1.0.0',
                 },
                 components: {
@@ -177,7 +141,9 @@ const start = async () => {
             },
         })
 
-        await registerApiRoutes(api)
+        await apiRouter(api)
+
+        await api.ready()
 
         const port = process.env.PORT
         const host = process.env.HOST
@@ -186,6 +152,10 @@ const start = async () => {
         if (!host) throw new Error('env HOST not found')
 
         await api.listen({ host, port: +port })
+
+        console.log({
+            swagger: `http://${host}:${port}/swagger/docs`,
+        })
     } catch (err) {
         api.log.error(err)
         process.exit(1)
@@ -193,7 +163,7 @@ const start = async () => {
 }
 
 start().catch(err => {
-    console.error('Failed to start server:', err)
+    console.error(err)
     process.exit(1)
 })
 

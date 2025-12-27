@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        YARN_CACHE_FOLDER = "${WORKSPACE}/.yarn-cache"
         IMAGE_NAME = "phamdongchinh683/backend-fastify"
     }
 
@@ -26,8 +27,12 @@ pipeline {
 
         stage('Install & Build') {
             steps {
-                sh '''
-                    yarn install
+                  sh '''
+                if [ -d node_modules ]; then
+                    echo "Using cached node_modules"
+                else
+                    yarn install --frozen-lockfile
+                fi
                     yarn build
                 '''
             }

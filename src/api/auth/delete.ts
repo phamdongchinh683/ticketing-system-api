@@ -11,7 +11,7 @@ api.route({
         }
     },
     schema: {
-        params: z.object({
+        querystring: z.object({
             id: z.string(),
         }),
         response: { 200: z.object({ message: z.string() }) },
