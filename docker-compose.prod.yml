@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   api:
-    image: phamdongchinh683/backend-fastify:latest
+    image: phamdongchinh683/backend-fastify:${IMAGE_TAG}
     container_name: api
     env_file:
       - .env
