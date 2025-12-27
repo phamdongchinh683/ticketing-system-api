@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   api:
     image: phamdongchinh683/backend-fastify:latest
