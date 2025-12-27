@@ -49,7 +49,6 @@ pipeline {
         stage ("Deploy") {
             steps {
                 sh '''
-                    export IMAGE_TAG=${GIT_COMMIT}
                     docker-compose -f docker-compose.prod.yml pull
                     docker-compose -f docker-compose.prod.yml up -d
                 '''
