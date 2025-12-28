@@ -24,28 +24,7 @@ pipeline {
                 }
             }
         }
-
-        stage('Install & Build') {
-            steps {
-                  sh '''
-                if [ -d node_modules ]; then
-                    echo "Using cached node_modules"
-                else
-                    yarn install --frozen-lockfile
-                fi
-                    yarn build
-                '''
-            }
-        }
-
-        stage('Migrate') {
-            steps {
-                sh '''
-                    yarn migrate
-                '''
-            }
-        }
-        
+          
         stage ("Deploy") {
             steps {
                 sh '''
