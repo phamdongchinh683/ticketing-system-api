@@ -14,7 +14,7 @@ pipeline {
             }
         }
 
-        stage('Load Production Environment') {
+        stage('Load Production Environment ') {
             steps {
                 withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
                     sh '''
@@ -38,6 +38,14 @@ pipeline {
             }
         }
 
+        stage('Migrate') {
+            steps {
+                sh '''
+                    yarn migrate
+                '''
+            }
+        }
+        
         stage ("Deploy") {
             steps {
                 sh '''
