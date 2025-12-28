@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        YARN_CACHE_FOLDER = "${WORKSPACE}/.yarn-cache"
         IMAGE_NAME = "phamdongchinh683/backend-fastify"
         DOCKER_HUB_CREDS = 'dockerhub-creds'
     }
@@ -27,7 +26,7 @@ pipeline {
             }
         }
 
-        stage('Load Production Environment ') {
+        stage('Load Production Environment') {
             steps {
                 withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
                     sh '''
