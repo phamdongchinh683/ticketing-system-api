@@ -5,6 +5,8 @@ services:
     restart: always
     env_file:
       - .env
+    ports:
+      - "3000:3000"
     networks:
       - internal-net
     depends_on:
@@ -24,20 +26,6 @@ services:
       - internal-net
     ports:
       - "5432:5432"
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    restart: always
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    networks:
-      - internal-net
-    depends_on:
-      - api
-
 volumes:
   db_data:
 
