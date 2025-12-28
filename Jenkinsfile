@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
+        IMAGE_NAME = "phamdongchinh683/backend-fastify"
         YARN_CACHE_FOLDER = "${WORKSPACE}/.yarn-cache"
         IMAGE_NAME = "phamdongchinh683/backend-fastify"
+        DOCKER_HUB_CREDS = 'dockerhub-creds'
     }
 
     stages {
@@ -11,6 +13,17 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Push Image to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDS, usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                sh '''
+                        docker build -t ${IMAGE_NAME}:latest .
+                        docker push ${IMAGE_NAME}:latest
+                    '''
+                }
             }
         }
 
@@ -31,10 +44,8 @@ pipeline {
                     docker-compose -f docker-compose.prod.yml pull
                     docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
                     docker-compose -f docker-compose.prod.yml up -d --remove-orphans
-
                 '''
             }
         }
-
     }
 }
