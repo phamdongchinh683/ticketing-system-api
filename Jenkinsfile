@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "phamdongchinh683/backend-fastify"
         YARN_CACHE_FOLDER = "${WORKSPACE}/.yarn-cache"
         IMAGE_NAME = "phamdongchinh683/backend-fastify"
         DOCKER_HUB_CREDS = 'dockerhub-creds'
