@@ -1,0 +1,48 @@
+{
+  "name": "backend-fastify-setting",
+  "type": "module",
+  "packageManager": "yarn@4.11.0",
+  "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec tsx src/app/api.ts",
+    "build": "tsc",
+    "prestart": "yarn build",
+    "start": "node dist/app/api.js",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\"",
+    "migration:create": "kysely migrate:make",
+    "migration:down": "kysely migrate:down",
+    "migrate": "kysely migrate:latest"
+  },
+  "dependencies": {
+    "@fastify/swagger": "^9.6.1",
+    "@fastify/swagger-ui": "^5.2.3",
+    "dotenv": "^17.2.3",
+    "fast-jwt": "^6.1.0",
+    "fastify": "^5.6.2",
+    "fastify-plugin": "^5.0.1",
+    "fastify-type-provider-zod": "^6.1.0",
+    "kysely": "^0.28.9",
+    "kysely-ctl": "^0.19.0",
+    "lodash": "^4.17.21",
+    "openapi-types": "^12.1.3",
+    "pg": "^8.16.3",
+    "qs": "^6.14.0",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4",
+    "@types/node": "^25.0.3",
+    "@types/pg": "^8",
+    "@types/qs": "^6",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-perfectionist": "4.15.1",
+    "eslint-plugin-prettier": "5.5.4",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.7.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.0"
+  }
+}

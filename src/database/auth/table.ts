@@ -1,0 +1,13 @@
+import { GeneratedAlways, Insertable, Selectable, Updateable } from 'kysely'
+import { Timestamps } from '../../datasource/helpers/common.js'
+import { AuthUserId } from './type.js'
+
+export interface AuthUserTable extends Timestamps {
+    id: GeneratedAlways<AuthUserId>
+    username: string
+    password: string
+}
+
+export type AuthUserTableInsert = Insertable<AuthUserTable>
+export type AuthUserTableSelect = Selectable<AuthUserTable>
+export type AuthUserTableUpdate = Updateable<AuthUserTable>
