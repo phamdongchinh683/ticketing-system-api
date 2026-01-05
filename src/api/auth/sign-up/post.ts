@@ -1,6 +1,5 @@
-import { z } from 'zod'
 import { AuthBody, AuthResponse } from '../../../model/body/auth/index.js'
-import { api, bearer, endpoint, tags } from '../../../app/api.js'
+import { api, endpoint, tags } from '../../../app/api.js'
 import { bus } from '../../../business/index.js'
 
 const __filename = new URL('', import.meta.url).pathname
@@ -14,7 +13,6 @@ api.route({
     schema: {
         body: AuthBody,
         response: { 200: AuthResponse },
-        security: bearer,
         tags: tags(__filename),
     },
 })

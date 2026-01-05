@@ -10,3 +10,9 @@ export async function register(body: AuthBody) {
         password: hashedPassword,
     })
 }
+
+export async function signIn(body: AuthBody) {
+    return {
+        message: 'OK',
+    }
+}
