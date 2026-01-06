@@ -8,10 +8,14 @@ import { utils } from '../../utils/index.js'
 export async function register(body: AuthBody) {
     const hashedPassword = utils.password.hashPassword(body.password)
 
-    return dal.auth.cmd._createOne({
+    await dal.auth.cmd._createOne({
         ...body,
         password: hashedPassword,
     })
+    
+    return {
+        message: 'OK',
+    }
 }
 
 export async function signIn(body: AuthBody) {
