@@ -5,3 +5,7 @@ import { AuthUserTableInsert } from './table.js'
 export function _createOne(params: AuthUserTableInsert) {
     return dal.auth.query.insertOne(params)
 }
+
+export function _findOneByUsername(username: string) {
+   return dal.auth.query.findOneByUsername(username)
+}

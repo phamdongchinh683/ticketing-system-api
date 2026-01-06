@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { AuthUserId } from '../../../database/auth/type.js'
+import { UserInfo } from '../../common.js'
 
 export const AuthBody = z.object({
     username: z.string().min(5),
@@ -9,7 +9,15 @@ export const AuthBody = z.object({
 export type AuthBody = z.infer<typeof AuthBody>
 
 export const AuthResponse = z.object({
-    id: AuthUserId,
+    message: z.string(),
 })
 
 export type AuthResponse = z.infer<typeof AuthResponse>
+
+export const AuthSignInResponse = z.object({
+    message: z.string(),
+    token: z.string(),
+    user: UserInfo,
+})
+
+export type AuthSignInResponse = z.infer<typeof AuthSignInResponse>
