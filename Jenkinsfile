@@ -14,6 +14,17 @@ pipeline {
             }
         }
 
+        stage('Load Production Environment') {
+            steps {
+                withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
+                    sh '''
+                        cat "$ENV_FILE" | jq -r '. | to_entries[] | .key + "=" + (.value | tostring)' > .env
+                        cat .env
+                        '''
+                }
+            }
+        }
+
         stage("Migrate") {
             steps {
                 sh '''
@@ -21,7 +32,7 @@ pipeline {
                 '''
             }
         }
-
+        
         stage('Push Image to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDS, usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
@@ -34,17 +45,6 @@ pipeline {
             }
         }
 
-        stage('Load Production Environment') {
-            steps {
-                withCredentials([file(credentialsId: 'env', variable: 'ENV_FILE')]) {
-                    sh '''
-                        cat "$ENV_FILE" | jq -r '. | to_entries[] | .key + "=" + (.value | tostring)' > .env
-                        cat .env
-                        '''
-                }
-            }
-        }
-          
         stage("Deploy") {
             steps {
                  sh '''
@@ -53,7 +53,6 @@ pipeline {
                         echo "postgres is already running → deploy API only"
 
                         docker-compose -f docker-compose.prod.yml pull api
-                        docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
                         docker-compose -f docker-compose.prod.yml up -d api
                     else
                         echo " Postgres is NOT running → full docker compose up"
