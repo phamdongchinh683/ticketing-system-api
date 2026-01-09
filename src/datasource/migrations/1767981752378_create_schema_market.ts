@@ -1,14 +1,13 @@
 import type { Kysely } from 'kysely'
 import { sql } from 'kysely'
 
-const schema = 'market'
 
 const UP = sql`
-	CREATE SCHEMA IF NOT EXISTS ${schema};
+	CREATE SCHEMA IF NOT EXISTS market;
 `
 
 const DOWN = sql`
-	DROP SCHEMA IF EXISTS ${schema};
+	DROP SCHEMA IF EXISTS market;
 `
 export async function up(db: Kysely<any>): Promise<void> {
 	await UP.execute(db)

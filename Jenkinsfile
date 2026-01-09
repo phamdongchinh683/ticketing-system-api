@@ -28,7 +28,7 @@ pipeline {
         stage("Migrate") {
             steps {
                 sh '''
-                    docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
+                    yarn migrate
                 '''
             }
         }
