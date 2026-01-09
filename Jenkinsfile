@@ -40,9 +40,9 @@ pipeline {
         stage ("Deploy") {
             steps {
                 sh '''
-                    docker-compose -f docker-compose.prod.yml pull
+                    docker-compose -f docker-compose.prod.yml pull api
                     docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
-                    docker-compose -f docker-compose.prod.yml up -d --remove-orphans
+                    docker-compose -f docker-compose.prod.yml up -d api
                 '''
             }
         }
