@@ -14,6 +14,14 @@ pipeline {
             }
         }
 
+        stage("Migrate") {
+            steps {
+                sh '''
+                    yarn migrate
+                '''
+            }
+        }
+
         stage('Push Image to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDS, usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
@@ -37,14 +45,23 @@ pipeline {
             }
         }
           
-        stage ("Deploy") {
+        stage("Deploy") {
             steps {
-                sh '''
-                    docker-compose -f docker-compose.prod.yml pull api
-                    docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
-                    docker-compose -f docker-compose.prod.yml up -d api
-                '''
+                 sh '''
+                    echo "checking if postgres is running on port 5432"
+                    if docker ps --filter "publish=5432" --format "{{.Names}}" | grep -q postgres; then
+                        echo "postgres is already running → deploy API only"
+
+                        docker-compose -f docker-compose.prod.yml pull api
+                        docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
+                        docker-compose -f docker-compose.prod.yml up -d api
+                    else
+                        echo " Postgres is NOT running → full docker compose up"
+                        docker-compose -f docker-compose.prod.yml up -d
+                    fi
+                 '''
             }
         }
     }
 }
+
