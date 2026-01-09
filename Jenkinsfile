@@ -28,7 +28,7 @@ pipeline {
         stage("Migrate") {
             steps {
                 sh '''
-                    yarn migrate
+                    docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
                 '''
             }
         }
@@ -51,7 +51,6 @@ pipeline {
                     echo "checking if postgres is running on port 5432"
                     if docker ps --filter "publish=5432" --format "{{.Names}}" | grep -q postgres; then
                         echo "postgres is already running → deploy API only"
-
                         docker-compose -f docker-compose.prod.yml pull api
                         docker-compose -f docker-compose.prod.yml up -d api
                     else
