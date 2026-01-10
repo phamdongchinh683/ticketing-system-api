@@ -8,7 +8,13 @@ const __filename = new URL('', import.meta.url).pathname
 
 api.route({
     ...endpoint(__filename),
-    handler: async request => {
+    config: {
+        rateLimit: {
+            max: 10,
+            timeWindow: '1m',
+        }
+    },
+    handler: async request => { 
         return await bus.auth.signIn(request.body)
     },
 

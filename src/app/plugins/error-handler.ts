@@ -7,8 +7,8 @@ import {
 } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod'
-import { BadRequest } from '../model/error.js'
-import { HttpErr } from './index.js'
+import { BadRequest } from '../../model/error.js'
+import { HttpErr } from '../index.js'
 
 export const errorHandlerPlugin = fastifyPlugin((app: FastifyInstance) => {
     app.setErrorHandler((err: FastifyError, request: FastifyRequest, reply: FastifyReply) => {
@@ -28,7 +28,8 @@ export const errorHandlerPlugin = fastifyPlugin((app: FastifyInstance) => {
             err instanceof HttpErr.UnprocessableEntity ||
             err instanceof HttpErr.Forbidden ||
             err instanceof HttpErr.Unauthorized ||
-            err instanceof HttpErr.NotFound
+            err instanceof HttpErr.NotFound ||
+            err instanceof HttpErr.TooManyRequests
         )
             return reply.code(err.status).send({
                 errorCode: err.errorCode,

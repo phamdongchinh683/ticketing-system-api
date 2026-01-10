@@ -10,10 +10,11 @@ import {
 import { readdirSync, statSync } from 'fs'
 import path, { dirname, parse, relative, sep } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
-import { errorHandlerPlugin } from './error-handler.js'
+import { errorHandlerPlugin } from './plugins/error-handler.js'
 import QueryString from 'qs'
 import _ from 'lodash'
 import dotenv from 'dotenv'
+import { rateLimitPlugin } from './plugins/rate-limit.js'
 
 dotenv.config()
 
@@ -56,6 +57,19 @@ api.addHook('preSerialization', async (request, reply, response) => {
             },
         })
     return response
+})
+
+api.get('/health',{
+    config: {
+        rateLimit: {
+            max: 2,
+            timeWindow: '1m',
+        }
+    }
+}, async (request, reply) => {
+    return {
+        status: 'ok',
+    }
 })
 
 export const bearer = [{ bearerAuth: [] }]
@@ -111,6 +125,7 @@ async function apiRouter(app: FastifyInstance) {
 
 const start = async () => {
     try {
+        await api.register(rateLimitPlugin)
         await api.register(errorHandlerPlugin)
 
         await api.register(swagger, {
