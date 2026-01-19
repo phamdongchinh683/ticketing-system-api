@@ -1,4 +1,4 @@
-import Fastify, { type FastifyInstance, type HTTPMethods } from 'fastify'
+import Fastify, { type FastifyInstance } from 'fastify'
 import swagger from '@fastify/swagger'
 import swaggerUI from '@fastify/swagger-ui'
 import {
@@ -15,6 +15,8 @@ import QueryString from 'qs'
 import _ from 'lodash'
 import dotenv from 'dotenv'
 import { rateLimitPlugin } from './plugins/rate-limit.js'
+import { compressPlugin } from './plugins/compress.js'
+import { corsPlugin } from './plugins/cors.js'
 
 dotenv.config()
 
@@ -72,6 +74,7 @@ api.get('/health',{
     }
 })
 
+  
 export const bearer = [{ bearerAuth: [] }]
 
 export const endpoint = (filename: string): { method: string; url: string } => {
@@ -126,8 +129,9 @@ async function apiRouter(app: FastifyInstance) {
 const start = async () => {
     try {
         await api.register(rateLimitPlugin)
+        await api.register(compressPlugin)
+        await api.register(corsPlugin)
         await api.register(errorHandlerPlugin)
-
         await api.register(swagger, {
             openapi: {
                 info: {
