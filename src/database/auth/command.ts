@@ -7,5 +7,5 @@ export function _createOne(params: AuthUserTableInsert) {
 }
 
 export function _findOneByUsername(username: string) {
-   return dal.auth.query.findOneByUsername(username)
+    return dal.auth.query.findOneByUsername(username)
 }

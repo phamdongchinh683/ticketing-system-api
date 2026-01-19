@@ -1,2 +1,2 @@
 export * as HttpErr from './error-type.js'
-// export * as auth from "./jwt/handler.js";
+export * as service from './service/index.js'
