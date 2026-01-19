@@ -6,5 +6,9 @@ export async function insertOne(params: AuthUserTableInsert) {
 }
 
 export async function findOneByUsername(username: string) {
-    return db.selectFrom('auth.user').where("username", '=', username).selectAll().executeTakeFirstOrThrow()
+    return db
+        .selectFrom('auth.user')
+        .where('username', '=', username)
+        .selectAll()
+        .executeTakeFirstOrThrow()
 }

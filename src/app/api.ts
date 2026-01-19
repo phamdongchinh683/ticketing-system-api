@@ -59,19 +59,6 @@ api.addHook('preSerialization', async (request, reply, response) => {
     return response
 })
 
-api.get('/health',{
-    config: {
-        rateLimit: {
-            max: 2,
-            timeWindow: '1m',
-        }
-    }
-}, async (request, reply) => {
-    return {
-        status: 'ok',
-    }
-})
-
 export const bearer = [{ bearerAuth: [] }]
 
 export const endpoint = (filename: string): { method: string; url: string } => {
@@ -158,8 +145,6 @@ const start = async () => {
 
         await apiRouter(api)
 
-        await api.ready()
-
         const port = process.env.PORT
         const host = process.env.HOST
 
@@ -167,6 +152,8 @@ const start = async () => {
         if (!host) throw new Error('env HOST not found')
 
         await api.listen({ host, port: +port })
+
+        await api.ready()
 
         console.log({
             swagger: `http://${host}:${port}/swagger/docs`,

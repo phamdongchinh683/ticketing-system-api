@@ -12,9 +12,9 @@ api.route({
         rateLimit: {
             max: 10,
             timeWindow: '1m',
-        }
+        },
     },
-    handler: async request => { 
+    handler: async request => {
         return await bus.auth.signIn(request.body)
     },
 
