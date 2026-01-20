@@ -1,0 +1,4 @@
+export * as coupon from './coupon/index.js'
+export * as booking from './booking/index.js'
+export * as ticket from './ticket/index.js'
+export * as seatSegment from './seat_segment/index.js'

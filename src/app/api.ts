@@ -61,20 +61,6 @@ api.addHook('preSerialization', async (request, reply, response) => {
     return response
 })
 
-api.get('/health',{
-    config: {
-        rateLimit: {
-            max: 2,
-            timeWindow: '1m',
-        }
-    }
-}, async (request, reply) => {
-    return {
-        status: 'ok',
-    }
-})
-
-  
 export const bearer = [{ bearerAuth: [] }]
 
 export const endpoint = (filename: string): { method: string; url: string } => {

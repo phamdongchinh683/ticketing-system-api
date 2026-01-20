@@ -1,9 +1,25 @@
-import { AuthUserId } from "../database/auth/type.js"
-import z from "zod"
+import z from 'zod'
+import { AuthUserRole, AuthUserStatus } from '../database/auth/user/type.js'
+
+export const Email = z.email()
+export type Email = z.infer<typeof Email>
+
+export const Phone = z.string().min(10)
+export type Phone = z.infer<typeof Phone>
+
+export const ContactInfo = z.object({
+    email: Email,
+    phone: Phone,
+})
+export type ContactInfo = z.infer<typeof ContactInfo>
 
 export const UserInfo = z.object({
-    id: AuthUserId,
     username: z.string(),
+    fullName: z.string(),
+    email: Email,
+    phone: Phone,
+    role: AuthUserRole,
+    status: AuthUserStatus,
 })
 
 export type UserInfo = z.infer<typeof UserInfo>

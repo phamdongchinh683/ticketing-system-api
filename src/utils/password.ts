@@ -5,8 +5,6 @@ export function hashPassword(password: string): string {
 }
 
 export function verifyPassword(password: string, hashedPassword: null | string): boolean {
-    console.log('hashPassword(password)', hashPassword(password))
-    console.log('hashedPassword', hashedPassword)
     return hashPassword(password) === hashedPassword
 }
 
