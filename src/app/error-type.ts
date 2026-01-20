@@ -52,3 +52,14 @@ export class UnprocessableEntity extends Error {
         super()
     }
 }
+
+export class TooManyRequests extends Error {
+    constructor(
+        public message = 'TooManyRequests',
+        public errorCode = 'TooManyRequests',
+        public extra: object = {},
+        public status = 429
+    ) {
+        super()
+    }
+}

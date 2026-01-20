@@ -1,20 +1,26 @@
 import { z } from 'zod'
-import { AuthBody, AuthResponse } from '../../../model/body/auth/index.js'
-import { api, bearer, endpoint, tags } from '../../../app/api.js'
+import { AuthSignInBody } from '../../../model/body/auth/index.js'
+import { api, endpoint, tags } from '../../../app/api.js'
 import { bus } from '../../../business/index.js'
+import { AuthResponse } from '../../../model/body/auth/index.js'
 
 const __filename = new URL('', import.meta.url).pathname
 
 api.route({
     ...endpoint(__filename),
+    config: {
+        rateLimit: {
+            max: 10,
+            timeWindow: '1m',
+        },
+    },
     handler: async request => {
-        return await bus.auth.register(request.body)
+        return await bus.auth.login.byUsernameEmailOrPhone(request.body)
     },
 
     schema: {
-        body: AuthBody,
+        body: AuthSignInBody,
         response: { 200: AuthResponse },
-        security: bearer,
         tags: tags(__filename),
     },
 })

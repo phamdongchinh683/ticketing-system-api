@@ -1,4 +1,3 @@
-export * as cmd from './command.js'
-export * as query from './query.js'
-export * as table from './table.js'
-export * as type from './type.js'
+export * as user from './user/index.js'
+export * as staffProfile from './staff_profile/index.js'
+export * as staffDetail from './staff_detail/index.js'

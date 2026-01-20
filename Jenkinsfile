@@ -13,7 +13,7 @@ pipeline {
                 checkout scm
             }
         }
-
+        
         stage('Push Image to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDS, usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
@@ -36,15 +36,27 @@ pipeline {
                 }
             }
         }
-          
-        stage ("Deploy") {
+
+        stage("Test Migrate") {
             steps {
                 sh '''
-                    docker-compose -f docker-compose.prod.yml pull
                     docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
-                    docker-compose -f docker-compose.prod.yml up -d --remove-orphans
                 '''
+            }
+        }
+
+        stage("Deploy") {
+            steps {
+                 sh '''
+                    if docker ps --filter "publish=5432" | grep -q postgres; then
+                        docker-compose -f docker-compose.prod.yml pull api
+                        docker-compose -f docker-compose.prod.yml up -d api
+                    else
+                        docker-compose -f docker-compose.prod.yml up -d
+                    fi
+                 '''
             }
         }
     }
 }
+
