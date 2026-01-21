@@ -16,6 +16,7 @@ import { OrganizationSeatTable } from '../database/organization/seat/table.js'
 import { OperationRouteTable } from '../database/operation/route/table.js'
 import { OperationTripStopTable } from '../database/operation/trip_stop/table.js'
 import { OperationTripEventTable } from '../database/operation/trip_event/table.js'
+import { OperationTripPriceTable } from '../database/operation/trip_price/table.js'
 
 export interface Database {
     'auth.user': AuthUserTable
@@ -36,4 +37,5 @@ export interface Database {
     'operation.route': OperationRouteTable
     'operation.trip_stop': OperationTripStopTable
     'operation.trip_event': OperationTripEventTable
+    'operation.trip_price': OperationTripPriceTable
 }

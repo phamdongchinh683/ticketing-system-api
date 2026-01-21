@@ -4,7 +4,7 @@ import { OperationStationId } from './type.js'
 
 export interface OperationStationTable extends Timestamps {
     id: GeneratedAlways<OperationStationId>
-    name: string
+    address: string
     city: string
 }
 

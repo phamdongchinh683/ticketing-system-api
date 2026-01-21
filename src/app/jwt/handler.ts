@@ -69,6 +69,6 @@ export const requireRoles = (headers: Headers, roleNames: string[]): any => {
     const userInfo = requiredAuthenticate(headers)
     const { role } = userInfo
     if (!role) throw new HttpErr.Forbidden()
-    if (!roleNames.includes(role.name)) throw new HttpErr.Forbidden()
+    if (!roleNames.includes(role)) throw new HttpErr.Forbidden()
     return userInfo
 }

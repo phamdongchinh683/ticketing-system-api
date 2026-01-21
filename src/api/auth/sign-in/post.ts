@@ -1,8 +1,6 @@
-import { z } from 'zod'
-import { AuthSignInBody } from '../../../model/body/auth/index.js'
 import { api, endpoint, tags } from '../../../app/api.js'
 import { bus } from '../../../business/index.js'
-import { AuthResponse } from '../../../model/body/auth/index.js'
+import { AuthSignInBody, AuthResponse } from '../../../model/body/auth/index.js'
 
 const __filename = new URL('', import.meta.url).pathname
 
