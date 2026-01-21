@@ -19,12 +19,11 @@ export const TripIdPickupParam = z.object({
 
 export type TripIdPickupParam = z.infer<typeof TripIdPickupParam>
 
-export const TripIdDropoffParam = z.object({
-    id: OperationTripId,
-    stopOrder: z.coerce.number(),
+export const TripIdDropoffQuery = z.object({
+    pickupOrder: z.coerce.number().int(),
 })
 
-export type TripIdDropoffParam = z.infer<typeof TripIdDropoffParam>
+export type TripIdDropoffQuery = z.infer<typeof TripIdDropoffQuery>
 
 export const TripQuery = z.object({
     id: OperationTripId,

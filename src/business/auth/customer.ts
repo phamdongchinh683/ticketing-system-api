@@ -46,7 +46,11 @@ export async function getTrips(query: TripFilter) {
     }
 }
 
-export async function getLocationTripStops(id: OperationTripId, direction: Direction, stopOrder?: number) {
+export async function getLocationTripStops(
+    id: OperationTripId,
+    direction: Direction,
+    stopOrder?: number
+) {
     return {
         tripStops: await dal.operation.tripStop.cmd.getLocationTripStops(id, direction, stopOrder),
     }

@@ -2,7 +2,11 @@ import { db } from '../../../datasource/db.js'
 import { OperationTripId } from '../trip/type.js'
 import { Direction } from '../../../model/common.js'
 
-export async function getLocationTripStopByTripId(id: OperationTripId, direction: Direction, stopOrder?: number) {
+export async function getLocationTripStopByTripId(
+    id: OperationTripId,
+    direction: Direction,
+    stopOrder?: number
+) {
     return db
         .selectFrom('operation.trip_stop as ts')
         .innerJoin('operation.station as s', 'ts.stationId', 's.id')
