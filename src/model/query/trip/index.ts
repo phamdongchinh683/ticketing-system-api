@@ -1,12 +1,13 @@
 import z from 'zod'
 import { OrderBy } from '../../common.js'
 import { OperationTripId } from '../../../database/operation/trip/type.js'
+import { TripStopCursor } from '../../body/trip/index.js'
 
 export const TripFilter = z.object({
     limit: z.coerce.number().optional().default(10),
-    next: OperationTripId.optional(),
-    from: z.string().toLowerCase(),
-    to: z.string().toLowerCase(),
+    cursor: TripStopCursor,
+    from: z.string(),
+    to: z.string(),
     date: z.coerce.date(),
     orderBy: OrderBy,
 })

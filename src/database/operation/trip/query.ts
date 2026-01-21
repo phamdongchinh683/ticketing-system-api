@@ -13,10 +13,24 @@ export async function findAllByFilter(filter: TripFilter) {
         .innerJoin('organization.bus_company as bc', 'bc.id', 'v.companyId')
         .where(eb => {
             const cond = []
+
             cond.push(eb('t.status', '=', OperationTripStatus.enum.scheduled))
             cond.push(eb('r.fromLocation', '=', filter.from))
             cond.push(eb('r.toLocation', '=', filter.to))
             cond.push(eb('t.departureDate', '=', filter.date))
+
+            if (filter.cursor) {
+                cond.push(
+                    eb.or([
+                        eb(sql<number>`min(${sql.ref('tp.price')})`, '>', filter.cursor.price),
+                        eb.and([
+                            eb(sql<number>`min(${sql.ref('tp.price')})`, '=', filter.cursor.price),
+                            eb('t.id', '>', filter.cursor.id),
+                        ]),
+                    ])
+                )
+            }
+
             return eb.and(cond)
         })
         .select([

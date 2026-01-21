@@ -37,7 +37,7 @@ export async function getTrips(query: TripFilter) {
     const data = hasNextPage ? trips.slice(0, limit + 1) : trips
 
     const last = data[data.length - 1]
-    const next = last ? last.id : null
+    const next = last ? { id: last.id, price: last.price } : null
 
     return {
         trips: data,
