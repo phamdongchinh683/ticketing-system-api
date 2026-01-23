@@ -11,8 +11,8 @@ export interface BookingCouponTable extends Timestamps {
     maxDiscountAmount: number
     totalQuantity: number
     usedQuantity: number
-    startDate: Date
-    endDate: Date
+    startDate: Date | null
+    endDate: Date | null
     isActive: boolean
 }
 

@@ -1,30 +1,23 @@
 import z from 'zod'
 import { OrderBy } from '../../common.js'
 import { OperationTripId } from '../../../database/operation/trip/type.js'
-import { TripStopCursor } from '../../body/trip/index.js'
 
 export const TripFilter = z.object({
     limit: z.coerce.number().optional().default(10),
-    cursor: TripStopCursor,
+    next: OperationTripId.optional(),
     from: z.string(),
     to: z.string(),
     date: z.coerce.date(),
-    orderBy: OrderBy,
+    orderByPrice: OrderBy,
 })
 
 export type TripFilter = z.infer<typeof TripFilter>
 
-export const TripIdPickupParam = z.object({
-    id: OperationTripId,
-})
-
-export type TripIdPickupParam = z.infer<typeof TripIdPickupParam>
-
-export const TripIdDropoffQuery = z.object({
+export const TripPickupQuery = z.object({
     pickupOrder: z.coerce.number().int(),
 })
 
-export type TripIdDropoffQuery = z.infer<typeof TripIdDropoffQuery>
+export type TripPickupQuery = z.infer<typeof TripPickupQuery>
 
 export const TripQuery = z.object({
     id: OperationTripId,

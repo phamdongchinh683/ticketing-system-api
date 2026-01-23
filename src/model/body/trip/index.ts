@@ -1,16 +1,7 @@
 import z from 'zod'
 import { OperationTripId } from '../../../database/operation/trip/type.js'
 import { OrganizationVehicleType } from '../../../database/organization/vehicle/type.js'
-
-export const TripStopCursor = z
-    .object({
-        id: OperationTripId,
-        price: z.number(),
-    })
-    .optional()
-    .nullable()
-
-export type TripStopCursor = z.infer<typeof TripStopCursor>
+import { OrganizationSeatId } from '../../../database/organization/seat/type.js'
 
 export const TripResponse = z.object({
     trips: z.array(
@@ -29,8 +20,7 @@ export const TripResponse = z.object({
             price: z.number(),
         })
     ),
-    next: TripStopCursor,
-    hasNextPage: z.boolean(),
+    next: OperationTripId.nullable(),
 })
 
 export type TripResponse = z.infer<typeof TripResponse>
@@ -48,3 +38,14 @@ export const TripStopResponse = z.object({
 })
 
 export type TripStopResponse = z.infer<typeof TripStopResponse>
+
+export const TripSeatResponse = z.object({
+    seats: z.array(
+        z.object({
+            id: OrganizationSeatId,
+            seatNumber: z.string(),
+        })
+    ),
+})
+
+export type TripSeatResponse = z.infer<typeof TripSeatResponse>

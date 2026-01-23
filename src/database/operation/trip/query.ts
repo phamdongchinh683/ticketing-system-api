@@ -4,7 +4,7 @@ import { TripFilter } from '../../../model/query/trip/index.js'
 import { OperationTripStatus } from './type.js'
 
 export async function findAllByFilter(filter: TripFilter) {
-    const limit = filter.limit ? filter.limit : 10
+    const { limit, next, from, to, date, orderByPrice } = filter
     return db
         .selectFrom('operation.trip as t')
         .innerJoin('operation.route as r', 't.routeId', 'r.id')
@@ -19,16 +19,8 @@ export async function findAllByFilter(filter: TripFilter) {
             cond.push(eb('r.toLocation', '=', filter.to))
             cond.push(eb('t.departureDate', '=', filter.date))
 
-            if (filter.cursor) {
-                cond.push(
-                    eb.or([
-                        eb(sql<number>`min(${sql.ref('tp.price')})`, '>', filter.cursor.price),
-                        eb.and([
-                            eb(sql<number>`min(${sql.ref('tp.price')})`, '=', filter.cursor.price),
-                            eb('t.id', '>', filter.cursor.id),
-                        ]),
-                    ])
-                )
+            if (next) {
+                cond.push(eb('t.id', '>', next))
             }
 
             return eb.and(cond)
@@ -60,8 +52,7 @@ export async function findAllByFilter(filter: TripFilter) {
             'r.durationMinutes',
             'tp.currency',
         ])
-        .orderBy(sql<number>`min(${sql.ref('tp.price')})`, filter.orderBy)
-        .orderBy('t.id', filter.orderBy)
+        .orderBy(sql<number>`min(${sql.ref('tp.price')})`, orderByPrice)
         .limit(limit + 1)
         .execute()
 }
