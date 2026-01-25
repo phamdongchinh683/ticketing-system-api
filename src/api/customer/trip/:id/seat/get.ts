@@ -11,7 +11,7 @@ api.route({
     ...endpoint(__filename),
     handler: async request => {
         requireRoles(request.headers, [AuthUserRole.enum.customer])
-        return await bus.operation.tripStop.getSeats(request.params)
+        return await bus.organization.seat.getSeats(request.params)
     },
 
     schema: {

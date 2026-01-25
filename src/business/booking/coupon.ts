@@ -28,7 +28,7 @@ export async function getCoupons(filter: CouponFilter) {
     }
 }
 
-function validateCoupon(coupon: CouponResponse, orderTotal: number) {
+export function validateCoupon(coupon: CouponResponse, orderTotal: number) {
     const now = utils.time.getNow().toDate()
     if (coupon.startDate && coupon.startDate > now) {
         throw new HttpErr.UnprocessableEntity('Coupon is not active yet', 'COUPON_NOT_ACTIVE_YET')

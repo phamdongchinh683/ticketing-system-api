@@ -1,6 +1,6 @@
 import { db } from '../../../datasource/db.js'
-import { dal } from '../../index.js'
 import { AuthUserTableInsert } from './table.js'
+import { utils } from '../../../utils/index.js'
 
 export async function insertOne(params: AuthUserTableInsert) {
     return db.insertInto('auth.user').values(params).returningAll().executeTakeFirstOrThrow()

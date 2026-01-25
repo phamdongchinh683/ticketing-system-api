@@ -1,6 +1,7 @@
 import { db } from '../../../datasource/db.js'
 import { TripFilter } from '../../../model/query/trip/index.js'
 import { OperationTripStatus } from '../trip/type.js'
+import { OperationTripId } from '../trip/type.js'
 
 export async function findAllByFilter(filter: TripFilter) {
     return db
@@ -17,4 +18,12 @@ export async function findAllByFilter(filter: TripFilter) {
         })
         .select(['t.id', 'r.fromLocation', 'r.toLocation', 't.status', 'r.durationMinutes'])
         .execute()
+}
+
+export async function findOneByTripId(tripId: OperationTripId) {
+    return db
+        .selectFrom('operation.trip_price as tp')
+        .selectAll()
+        .where('tp.tripId', '=', tripId)
+        .executeTakeFirstOrThrow()
 }

@@ -23,7 +23,6 @@ function getOccupiedSeatsSubQuery(params: TripSeatParam) {
         .where(eb => {
             const cond = []
             cond.push(eb('ss.tripId', '=', id))
-
             if (pickup) {
                 cond.push(eb('ts.stopOrder', '>', pickup))
             }
@@ -49,9 +48,13 @@ export async function getAvailableSeats(params: TripSeatParam) {
 
     return db
         .selectFrom('organization.seat as s')
-        .where('s.vehicleId', '=', vehicleId)
         .select(['s.id', 's.seatNumber'])
-        .where('s.id', 'not in', getOccupiedSeatsSubQuery(params))
+        .where(eb => {
+            const cond = []
+            cond.push(eb('s.vehicleId', '=', vehicleId))
+            cond.push(eb('s.id', 'not in', getOccupiedSeatsSubQuery(params)))
+            return eb.and(cond)
+        })
         .orderBy('s.seatNumber')
         .execute()
 }

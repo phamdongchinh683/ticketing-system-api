@@ -10,3 +10,5 @@ export const getNow = () => {
 export const getNext = (params: { second: number }) => {
     return getNow().add(params.second, 'seconds').toDate()
 }
+
+export const coolDownTime = 60 * 10 * 1000 // 10 minutes
