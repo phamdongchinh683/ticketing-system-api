@@ -1,11 +1,17 @@
 import { dal } from '../../index.js'
+import { OperationStationId } from '../station/type.js'
 import { OperationTripId } from '../trip/type.js'
-import { Direction } from '../../../model/common.js'
 
-export async function getLocationTripStops(
+export async function findAllPickupStop(
     id: OperationTripId,
-    direction: Direction,
-    stopOrder?: number
 ) {
-    return await dal.operation.tripStop.query.getLocationTripStopByTripId(id, direction, stopOrder)
+    return await dal.operation.tripStop.query.getPickupStopsByTripId(id)
+}
+
+export async function findAllDropoffStop(
+    tripId: OperationTripId,
+    fromStationId: OperationStationId,
+    stopOrder: number
+) {
+    return await dal.operation.tripStop.query.getDropoffStopsWithPrice(tripId, fromStationId, stopOrder)
 }

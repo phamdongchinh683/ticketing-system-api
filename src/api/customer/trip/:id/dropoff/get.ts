@@ -12,9 +12,9 @@ api.route({
     ...endpoint(__filename),
     handler: async request => {
         requireRoles(request.headers, [AuthUserRole.enum.customer])
-        const { pickupOrder } = request.query
+        const { fromStationId, stopOrder } = request.query
         const { id } = request.params
-        return await bus.operation.tripStop.getLocationTripStops(id, 'dropoff', pickupOrder)
+        return await bus.operation.tripStop.getDropoffStops(id , fromStationId, stopOrder)
     },
 
     schema: {

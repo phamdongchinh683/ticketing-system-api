@@ -3,7 +3,8 @@ import { CouponCheckCodeQuery, CouponFilter } from '../../model/query/coupon/ind
 import { utils } from '../../utils/index.js'
 import { HttpErr } from '../../app/index.js'
 import { CouponResponse } from '../../model/body/coupon/index.js'
-import { BookingDiscountType } from '../../database/booking/coupon/type.js'
+import { BookingCouponId, BookingDiscountType } from '../../database/booking/coupon/type.js'
+import { OperationTripId } from '../../database/operation/trip/type.js'
 
 export async function getCouponByCode(params: CouponCheckCodeQuery) {
     const coupon = await dal.booking.coupon.cmd.getCouponByCode(params)
@@ -84,5 +85,31 @@ export function applyCoupon(coupon: CouponResponse, orderTotal: number) {
     return {
         discountAmount: discountAmount,
         finalTotal: finalTotal,
+    }
+}
+
+export async function resultAmountOneWay(tripId: OperationTripId, couponId?: BookingCouponId) {
+    const originalAmount = await dal.operation.tripPrice.cmd.findOneByTripId(tripId)
+
+    if (couponId) {
+        const coupon = await dal.booking.coupon.cmd.getCouponByCode({
+            id: couponId,
+            orderTotal: originalAmount.price,
+        })
+        if (coupon) {
+            validateCoupon(coupon, originalAmount.price)
+            const { discountAmount, finalTotal } = applyCoupon(coupon, originalAmount.price)
+            return {
+                originalAmount: originalAmount.price,
+                discountAmount,
+                totalAmount: finalTotal,
+            }
+        }
+    }
+
+    return {
+        originalAmount: originalAmount.price,
+        discountAmount: 0,
+        totalAmount: originalAmount.price,
     }
 }

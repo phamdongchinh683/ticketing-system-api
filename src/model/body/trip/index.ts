@@ -2,6 +2,7 @@ import z from 'zod'
 import { OperationTripId } from '../../../database/operation/trip/type.js'
 import { OrganizationVehicleType } from '../../../database/organization/vehicle/type.js'
 import { OrganizationSeatId } from '../../../database/organization/seat/type.js'
+import { OperationStationId } from '../../../database/operation/station/type.js'
 
 export const TripResponse = z.object({
     trips: z.array(
@@ -16,8 +17,6 @@ export const TripResponse = z.object({
             plateNumber: z.string(),
             type: OrganizationVehicleType,
             totalSeats: z.number(),
-            currency: z.string(),
-            price: z.number(),
         })
     ),
     next: OperationTripId.nullable(),
@@ -30,14 +29,31 @@ export const TripStopResponse = z.object({
         z.object({
             address: z.string(),
             city: z.string(),
+            stationId: OperationStationId,
+            arrivalTime: z.date().nullable(),
             stopOrder: z.number(),
+            departureTime: z.date().nullable(),
+            price: z.number(),
+        })
+    ),
+})
+
+export type TripStopResponse = z.infer<typeof TripStopResponse>
+
+export const TripStopPickupResponse = z.object({
+    tripStops: z.array(
+        z.object({
+            address: z.string(),
+            city: z.string(),
+            stopOrder: z.number(),
+            stationId: OperationStationId,
             arrivalTime: z.date().nullable(),
             departureTime: z.date().nullable(),
         })
     ),
 })
 
-export type TripStopResponse = z.infer<typeof TripStopResponse>
+export type TripStopPickupResponse = z.infer<typeof TripStopPickupResponse>
 
 export const TripSeatResponse = z.object({
     seats: z.array(

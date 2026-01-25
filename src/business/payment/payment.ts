@@ -47,7 +47,7 @@ export async function createCashPayment(params: PaymentMethodRequest) {
         }
 
         return {
-            message: 'Cash payment already exists',
+            message: 'Please pay when you board the bus',
         }
     }
 

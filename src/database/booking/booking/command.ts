@@ -9,59 +9,20 @@ import { Transaction } from 'kysely'
 import { BookingTableInsert } from './table.js'
 import { dal } from '../../index.js'
 import { AuthUserId } from '../../auth/user/type.js'
-import { applyCoupon, validateCoupon } from '../../../business/booking/coupon.js'
-import { BookingCouponId } from '../coupon/type.js'
-import { OperationTripId } from '../../operation/trip/type.js'
 import { HttpErr } from '../../../app/index.js'
 
-export async function createOne(params: BookingRequest, userId: AuthUserId) {
-    const { returnBound, type } = params
-
-    if (type === BookingType.enum.one_way) {
-        return createOneWayBooking(params, userId)
-    } else if (type === BookingType.enum.round_trip && returnBound) {
-        return createRoundTripBooking(params, userId)
-    }
-}
-
-async function resultAmounts(tripId: OperationTripId, couponId?: BookingCouponId) {
-    const originalAmount = await dal.operation.tripPrice.query.findOneByTripId(tripId)
-
-    if (couponId) {
-        const coupon = await dal.booking.coupon.cmd.getCouponByCode({
-            id: couponId,
-            orderTotal: originalAmount.price,
-        })
-        if (coupon) {
-            validateCoupon(coupon, originalAmount.price)
-            const { discountAmount, finalTotal } = applyCoupon(coupon, originalAmount.price)
-            return {
-                originalAmount: originalAmount.price,
-                discountAmount,
-                totalAmount: finalTotal,
-            }
-        }
-    }
-
-    return {
-        originalAmount: originalAmount.price,
-        discountAmount: 0,
-        totalAmount: originalAmount.price,
-    }
-}
-
-async function createOneWayBooking(params: BookingRequest, userId: AuthUserId) {
+export async function createOneWayBooking(params: BookingRequest, userId: AuthUserId) {
     const { couponId, outBound } = params
-    return db.transaction().execute(async tx => {
-        const { originalAmount, discountAmount, totalAmount } = await resultAmounts(
-            outBound.tripId,
-            couponId
-        )
 
+    return db.transaction().execute(async tx => {
+        const { originalAmount, discountAmount, totalAmount } =
+            await dal.booking.coupon.cmd.resultAmountOneWay(outBound, tx, couponId)
+        
         const seatConflict = await dal.booking.seatSegment.cmd.lockSeatSegmentsTransaction(
             outBound,
             tx
         )
+
         if (seatConflict) {
             throw new HttpErr.UnprocessableEntity(
                 'Seat is already reserved for the selected segment',
@@ -115,45 +76,77 @@ async function createOneWayBooking(params: BookingRequest, userId: AuthUserId) {
     })
 }
 
-async function createRoundTripBooking(params: BookingRequest, userId: AuthUserId) {
+export async function createRoundTripBooking(params: BookingRequest, userId: AuthUserId) {
     const { couponId, outBound, returnBound } = params
+    let total = 0
+    let original = 0
+    let discount = 0
+    
     if (outBound && returnBound) {
         return db.transaction().execute(async tx => {
-            const result = await dal.operation.tripPrice.cmd.countPriceByTripIds(
-                [outBound.tripId, returnBound.tripId],
-                tx
-            )
 
-            if (couponId) {
-                await resultAmounts(outBound.tripId, couponId)
+            for (const trip of [outBound, returnBound]) {
+                const result = await dal.operation.tripPrice.cmd.getPriceByTrip(
+                    {
+                        tripId: trip.tripId,
+                        fromStationId: trip.fromStationId,
+                        toStationId: trip.toStationId,
+                    },
+                    tx
+                )
+                if (!result) {
+                    throw new HttpErr.NotFound(
+                        'Trip price not found for the selected segment',
+                        {
+                            tripId: trip.tripId,
+                            fromStationId: trip.fromStationId,
+                            toStationId: trip.toStationId,
+                        },
+                        'TRIP_PRICE_NOT_FOUND'
+                    )
+                }
+                total += result.price
             }
 
             const outBoundConflict = await dal.booking.seatSegment.cmd.lockSeatSegmentsTransaction(
                 outBound,
                 tx
             )
+
             if (outBoundConflict) {
                 throw new HttpErr.UnprocessableEntity(
                     'Outbound seat is already reserved for the selected segment',
                     'SEAT_CONFLICT_OUTBOUND'
                 )
             }
+
             const returnBoundConflict =
                 await dal.booking.seatSegment.cmd.lockSeatSegmentsTransaction(returnBound, tx)
+
             if (returnBoundConflict) {
                 throw new HttpErr.UnprocessableEntity(
                     'Return seat is already reserved for the selected segment',
                     'SEAT_CONFLICT_RETURN'
                 )
             }
+
+            if (couponId) {
+                const { originalAmount, discountAmount, totalAmount  } =
+                    await dal.booking.coupon.cmd.resultAmountRoundTrip(total, tx, couponId)
+                original += originalAmount
+                discount += discountAmount
+                total = totalAmount
+            }
+
             const booking = await createBookingTransaction(
                 {
                     userId,
                     couponId: couponId ?? null,
                     code: utils.random.generateRandomString(20),
                     bookingType: BookingType.enum.round_trip,
-                    totalAmount: result.count,
-                    originalAmount: result.count,
+                    totalAmount: total,
+                    discountAmount: discount,
+                    originalAmount: original,
                     status: BookingStatus.enum.pending,
                     expiredAt: utils.time.getNext({ second: utils.time.coolDownTime }),
                 },

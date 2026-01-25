@@ -1,5 +1,3 @@
-import { BookingStatus } from '../../database/booking/booking/type.js'
-import { BookingTicketStatus } from '../../database/booking/ticket/type.js'
 import { dal } from '../../database/index.js'
 import { PaymentStatus } from '../../database/payment/payment/type.js'
 import { db } from '../../datasource/db.js'
@@ -53,7 +51,6 @@ export async function verifyIpn(query: Record<string, string>) {
 
     const signData = buildSignData(vnpParams)
     const signed = createSecureHash(signData, hashSecret)
-
 
     if (secureHash !== signed) {
         return { RspCode: '97', Message: 'Invalid checksum' }
