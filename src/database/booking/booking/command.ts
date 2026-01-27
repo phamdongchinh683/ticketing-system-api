@@ -17,7 +17,7 @@ export async function createOneWayBooking(params: BookingRequest, userId: AuthUs
     return db.transaction().execute(async tx => {
         const { originalAmount, discountAmount, totalAmount } =
             await dal.booking.coupon.cmd.resultAmountOneWay(outBound, tx, couponId)
-        
+
         const seatConflict = await dal.booking.seatSegment.cmd.lockSeatSegmentsTransaction(
             outBound,
             tx
@@ -34,7 +34,7 @@ export async function createOneWayBooking(params: BookingRequest, userId: AuthUs
             {
                 userId,
                 couponId: couponId ?? null,
-                code: utils.random.generateRandomString(20),
+                code: utils.random.generateRandomNumber(20).toString(),
                 bookingType: BookingType.enum.one_way,
                 originalAmount,
                 totalAmount: totalAmount,
@@ -81,10 +81,9 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
     let total = 0
     let original = 0
     let discount = 0
-    
+
     if (outBound && returnBound) {
         return db.transaction().execute(async tx => {
-
             for (const trip of [outBound, returnBound]) {
                 const result = await dal.operation.tripPrice.cmd.getPriceByTrip(
                     {
@@ -131,7 +130,7 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
             }
 
             if (couponId) {
-                const { originalAmount, discountAmount, totalAmount  } =
+                const { originalAmount, discountAmount, totalAmount } =
                     await dal.booking.coupon.cmd.resultAmountRoundTrip(total, tx, couponId)
                 original += originalAmount
                 discount += discountAmount
@@ -142,7 +141,7 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
                 {
                     userId,
                     couponId: couponId ?? null,
-                    code: utils.random.generateRandomString(20),
+                    code: utils.random.generateRandomNumber(20).toString(),
                     bookingType: BookingType.enum.round_trip,
                     totalAmount: total,
                     discountAmount: discount,

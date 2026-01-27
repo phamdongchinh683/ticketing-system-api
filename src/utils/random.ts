@@ -1,5 +1,3 @@
-export function generateRandomString(length: number) {
-    return Math.random()
-        .toString(36)
-        .substring(2, 2 + length)
+export function generateRandomNumber(length: number) {
+    return Math.floor(Math.random() * 10 ** length)
 }

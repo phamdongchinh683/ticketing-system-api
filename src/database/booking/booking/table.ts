@@ -11,10 +11,10 @@ export interface BookingTable extends Timestamps {
     code: string
     bookingType: BookingType
     originalAmount: number
-    discountAmount: number | null
+    discountAmount: number
     totalAmount: number
     status: BookingStatus
-    expiredAt: Date | null
+    expiredAt: Date
 }
 
 export type BookingTableInsert = Insertable<BookingTable>

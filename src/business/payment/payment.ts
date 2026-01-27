@@ -4,23 +4,72 @@ import { PaymentMethodRequest } from '../../model/query/payment/index.js'
 import { PaymentMethod, PaymentStatus } from '../../database/payment/payment/type.js'
 import { service } from '../../service/index.js'
 import { HttpErr } from '../../app/index.js'
+import { BookingId } from '../../database/booking/booking/type.js'
+import { db } from '../../datasource/db.js'
+import { AuthUserId } from '../../database/auth/user/type.js'
 
-export async function createPayment(params: PaymentMethodRequest, ip: string) {
+async function preparePayment(bookingId: BookingId, method: PaymentMethod) {
+    let payment = await dal.payment.payment.query.getPayment(bookingId)
+
+    if (payment) {
+        if (payment.status === PaymentStatus.enum.success) {
+            throw new HttpErr.UnprocessableEntity('Payment already confirmed', 'PAYMENT_ALREADY_CONFIRMED')
+        }
+
+        if (
+            payment.status === PaymentStatus.enum.failed ||
+            payment.expiredAt < utils.time.getNow().toDate()
+        ) {
+            throw new HttpErr.UnprocessableEntity(
+                'Payment failed or expired',
+                'PAYMENT_FAILED_OR_EXPIRED'
+            )
+        }
+
+        if (payment.method !== method) {
+            throw new HttpErr.UnprocessableEntity(
+                'Another payment method already exists',
+                'PAYMENT_METHOD_CONFLICT'
+            )
+        }
+
+        return payment
+    }
+
+    const amount = (await dal.booking.booking.query.getAmountByBookingId(bookingId)).totalAmount
+
+    return await dal.payment.payment.cmd.upsertPayment({
+        bookingId,
+        transactionCode: utils.random.generateRandomNumber(12).toString(),
+        method,
+        status: PaymentStatus.enum.pending,
+        amount,
+        paidAt: null,
+    })
+}
+
+export async function createPayment(params: PaymentMethodRequest, userId: AuthUserId, ip: string) {
     const { method } = params
+
+    const bookingInfo = await dal.booking.booking.query.getBookingByUserIdAndBookingId({ userId: userId, bookingId: params.bookingId })
+
+    if (!bookingInfo) {
+        throw new HttpErr.Forbidden('You are not allowed to create payment for this booking')
+    }
 
     switch (method) {
         case PaymentMethod.enum.vnpay:
-            return await createVnpayPayment(params, ip)
+            return createVnpayPayment(params, ip)
         case PaymentMethod.enum.zalopay:
             return {
-                message: 'Zalopay is not supported yet',
+                message: 'ZaloPay is not supported yet',
             }
         case PaymentMethod.enum.momo:
             return {
                 message: 'Momo is not supported yet',
             }
         case PaymentMethod.enum.cash:
-            return await createCashPayment(params)
+            return createCashPayment(params)
         default:
             throw new HttpErr.UnprocessableEntity(
                 'Invalid payment method',
@@ -30,71 +79,16 @@ export async function createPayment(params: PaymentMethodRequest, ip: string) {
 }
 
 export async function createCashPayment(params: PaymentMethodRequest) {
-    const { bookingId } = params
-
-    const existingPayment = await dal.payment.payment.query.getPayment(bookingId)
-
-    if (existingPayment) {
-        if (existingPayment.status === PaymentStatus.enum.success) {
-            throw new HttpErr.UnprocessableEntity('Booking already paid', 'BOOKING_ALREADY_PAID')
-        }
-
-        if (existingPayment.method !== PaymentMethod.enum.cash) {
-            throw new HttpErr.UnprocessableEntity(
-                'Another payment method already exists',
-                'PAYMENT_METHOD_CONFLICT'
-            )
-        }
-
-        return {
-            message: 'Please pay when you board the bus',
-        }
-    }
-
-    const amount = (await dal.booking.booking.query.getAmountByBookingId(bookingId)).totalAmount
-
-    const payment = await dal.payment.payment.cmd.upsertPayment({
-        bookingId,
-        transactionCode: utils.random.generateRandomString(12),
-        method: PaymentMethod.enum.cash,
-        status: PaymentStatus.enum.pending,
-        amount,
-        paidAt: null,
-    })
+    const payment = await preparePayment(params.bookingId, PaymentMethod.enum.cash)
 
     return {
-        message: 'OK',
+        message: 'Please pay when you board the bus',
         payment,
     }
 }
 
 export async function createVnpayPayment(params: PaymentMethodRequest, ip: string) {
-    let payment = await dal.payment.payment.query.getPayment(params.bookingId)
-
-    if (!payment) {
-        const amount = (await dal.booking.booking.query.getAmountByBookingId(params.bookingId))
-            .totalAmount
-
-        payment = await dal.payment.payment.cmd.upsertPayment({
-            ...params,
-            transactionCode: utils.random.generateRandomString(12),
-            status: PaymentStatus.enum.pending,
-            method: PaymentMethod.enum.vnpay,
-            amount,
-            paidAt: null,
-        })
-    }
-
-    if (payment.status === PaymentStatus.enum.success) {
-        throw new HttpErr.UnprocessableEntity('Already paid', 'PAYMENT_ALREADY_PAID')
-    }
-
-    if (payment.method !== PaymentMethod.enum.vnpay) {
-        throw new HttpErr.UnprocessableEntity(
-            'Another payment method already exists',
-            'PAYMENT_METHOD_CONFLICT'
-        )
-    }
+    const payment = await preparePayment(params.bookingId, PaymentMethod.enum.vnpay)
 
     return {
         message: 'OK',
@@ -103,5 +97,47 @@ export async function createVnpayPayment(params: PaymentMethodRequest, ip: strin
 }
 
 export async function vnpayIpn(query: Record<string, string>) {
-    return await service.vnpay.verifyIpn(query)
+    const vnpParams = service.vnpay.verifyIpn(query)
+
+    if ('RspCode' in vnpParams) {
+        return vnpParams
+    }
+
+    const { vnp_TxnRef, vnp_Amount, vnp_ResponseCode } = vnpParams
+
+    if (!vnp_TxnRef || vnp_Amount == null || !vnp_ResponseCode) {
+        return { RspCode: '99', Message: 'Invalid request' }
+    }
+
+    return db.transaction().execute(async tx => {
+        const payment = await dal.payment.payment.query.getPayment(undefined, vnp_TxnRef, tx)
+
+        if (!payment) {
+            return { RspCode: '01', Message: 'Payment not found' }
+        }
+
+        if (payment.status === PaymentStatus.enum.success) {
+            return { RspCode: '00', Message: 'Already confirmed' }
+        }
+
+        if (
+            payment.status === PaymentStatus.enum.failed ||
+            payment.expiredAt < utils.time.getNow().toDate()
+        ) {
+            return { RspCode: '00', Message: 'Payment failed or expired' }
+        }
+
+
+        if (payment.amount !== Number(vnp_Amount) / 100) {
+            return { RspCode: '04', Message: 'Invalid amount' }
+        }
+
+        if (vnp_ResponseCode !== '00') {
+            await dal.payment.payment.cmd.updatePaymentStatusFailed(vnp_TxnRef, tx)
+            return { RspCode: '00', Message: 'Payment failed recorded' }
+        }
+
+        await dal.payment.payment.cmd.updatePaymentStatusSuccess(vnp_TxnRef, tx)
+        return { RspCode: '00', Message: 'Confirm Success' }
+    })
 }

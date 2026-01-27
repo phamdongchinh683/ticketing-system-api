@@ -26,6 +26,3 @@ export type UserInfo = z.infer<typeof UserInfo>
 
 export const OrderBy = z.enum(['asc', 'desc'])
 export type OrderBy = z.infer<typeof OrderBy>
-
-export const Direction = z.enum(['pickup', 'dropoff'])
-export type Direction = z.infer<typeof Direction>

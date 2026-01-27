@@ -39,9 +39,9 @@ export async function getCouponByCodeTransaction(
 
 export async function resultAmountOneWay(
     params: {
-        tripId: OperationTripId,
-        fromStationId: OperationStationId,
-        toStationId: OperationStationId,
+        tripId: OperationTripId
+        fromStationId: OperationStationId
+        toStationId: OperationStationId
     },
     trx: Transaction<Database>,
     couponId?: BookingCouponId

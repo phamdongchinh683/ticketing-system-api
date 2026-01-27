@@ -1,7 +1,6 @@
 import { dal } from '../../database/index.js'
 import { OperationStationId } from '../../database/operation/station/type.js'
 import { OperationTripId } from '../../database/operation/trip/type.js'
-import { Direction } from '../../model/common.js'
 
 export async function getPickupStops(id: OperationTripId) {
     return {
@@ -9,8 +8,16 @@ export async function getPickupStops(id: OperationTripId) {
     }
 }
 
-export async function getDropoffStops(tripId: OperationTripId, fromStationId: OperationStationId, stopOrder: number) {
+export async function getDropoffStops(
+    tripId: OperationTripId,
+    fromStationId: OperationStationId,
+    stopOrder: number
+) {
     return {
-        tripStops: await dal.operation.tripStop.cmd.findAllDropoffStop(tripId, fromStationId, stopOrder),
+        tripStops: await dal.operation.tripStop.cmd.findAllDropoffStop(
+            tripId,
+            fromStationId,
+            stopOrder
+        ),
     }
 }

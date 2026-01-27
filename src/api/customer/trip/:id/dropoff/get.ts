@@ -14,7 +14,7 @@ api.route({
         requireRoles(request.headers, [AuthUserRole.enum.customer])
         const { fromStationId, stopOrder } = request.query
         const { id } = request.params
-        return await bus.operation.tripStop.getDropoffStops(id , fromStationId, stopOrder)
+        return await bus.operation.tripStop.getDropoffStops(id, fromStationId, stopOrder)
     },
 
     schema: {

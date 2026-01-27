@@ -17,7 +17,6 @@ export type TripFilter = z.infer<typeof TripFilter>
 export const TripPickupQuery = z.object({
     fromStationId: OperationStationId,
     stopOrder: z.coerce.number().int(),
-
 })
 
 export type TripPickupQuery = z.infer<typeof TripPickupQuery>

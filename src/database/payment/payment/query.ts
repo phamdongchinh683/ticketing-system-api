@@ -39,7 +39,17 @@ export async function getPayment(
 ) {
     return (trx ?? db)
         .selectFrom('payment.payment as pp')
-        .selectAll()
+        .innerJoin('booking.booking as b', 'b.id', 'pp.bookingId')
+        .select([
+            'pp.id',
+            'pp.bookingId',
+            'pp.amount',
+            'pp.method',
+            'pp.status',
+            'pp.transactionCode',
+            'pp.paidAt',
+            'b.expiredAt',
+        ])
         .where(eb => {
             const cond = []
             if (bookingId) cond.push(eb('pp.bookingId', '=', bookingId))
