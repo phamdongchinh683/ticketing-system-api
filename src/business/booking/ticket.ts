@@ -5,7 +5,6 @@ import { TicketFilter } from '../../model/query/ticket/index.js'
 import { HttpErr } from '../../app/index.js'
 import { BookingStatus } from '../../database/booking/booking/type.js'
 
-
 export async function getTickets(q: TicketFilter, userId: AuthUserId) {
     const tickets = await dal.booking.ticket.query.findAll(q, userId)
     const hasNextPage = tickets.length > q.limit
@@ -26,20 +25,25 @@ export async function detailTicket(id: BookingTicketId, userId: AuthUserId) {
 }
 
 export async function cancelTicket(id: BookingTicketId, userId: AuthUserId) {
-
-    const data = await dal.booking.booking.query.getBookingByUserIdAndBookingId({ userId: userId, ticketId: id })
+    const data = await dal.booking.booking.query.getBookingByUserIdAndBookingId({
+        userId: userId,
+        ticketId: id,
+    })
 
     if (!data) {
         throw new HttpErr.Forbidden('You are not allowed to cancel this ticket')
     }
 
-    if (data.status === BookingStatus.enum.cancelled || data.status === BookingStatus.enum.expired) {
+    if (
+        data.status === BookingStatus.enum.cancelled ||
+        data.status === BookingStatus.enum.expired
+    ) {
         throw new HttpErr.Forbidden('This ticket has already been cancelled or expired')
     }
 
     const tickets = await dal.booking.ticket.cmd.cancelTicketTransaction(id)
     return {
-        message: "OK",
-        tickets: tickets
+        message: 'OK',
+        tickets: tickets,
     }
 }

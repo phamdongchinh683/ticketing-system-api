@@ -9,6 +9,7 @@ export async function updatePaymentTransactionByCode(
     params: {
         status: PaymentStatus
         paidAt?: Date
+        transactionNo?: string
     },
     trx?: Transaction<Database>
 ) {

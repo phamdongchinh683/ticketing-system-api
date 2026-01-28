@@ -1,15 +1,18 @@
 import { api, endpoint, tags } from '../../../../app/api.js'
 import { bus } from '../../../../business/index.js'
 import { VnPayIpnResponse } from '../../../../model/body/payment/index.js'
+import { VnPayIpnRequest } from '../../../../model/query/payment/index.js'
 
 const __filename = new URL('', import.meta.url).pathname
 
 api.route({
     ...endpoint(__filename),
     handler: async request => {
-        return await bus.payment.payment.vnpayIpn(request.query as Record<string, string>)
+        console.log(request.query)
+        return await bus.payment.payment.vnpayIpn(request.query)
     },
     schema: {
+        querystring: VnPayIpnRequest,
         response: {
             200: VnPayIpnResponse,
         },

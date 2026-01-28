@@ -13,7 +13,10 @@ async function preparePayment(bookingId: BookingId, method: PaymentMethod) {
 
     if (payment) {
         if (payment.status === PaymentStatus.enum.success) {
-            throw new HttpErr.UnprocessableEntity('Payment already confirmed', 'PAYMENT_ALREADY_CONFIRMED')
+            throw new HttpErr.UnprocessableEntity(
+                'Payment already confirmed',
+                'PAYMENT_ALREADY_CONFIRMED'
+            )
         }
 
         if (
@@ -51,7 +54,10 @@ async function preparePayment(bookingId: BookingId, method: PaymentMethod) {
 export async function createPayment(params: PaymentMethodRequest, userId: AuthUserId, ip: string) {
     const { method } = params
 
-    const bookingInfo = await dal.booking.booking.query.getBookingByUserIdAndBookingId({ userId: userId, bookingId: params.bookingId })
+    const bookingInfo = await dal.booking.booking.query.getBookingByUserIdAndBookingId({
+        userId: userId,
+        bookingId: params.bookingId,
+    })
 
     if (!bookingInfo) {
         throw new HttpErr.Forbidden('You are not allowed to create payment for this booking')
@@ -60,14 +66,6 @@ export async function createPayment(params: PaymentMethodRequest, userId: AuthUs
     switch (method) {
         case PaymentMethod.enum.vnpay:
             return createVnpayPayment(params, ip)
-        case PaymentMethod.enum.zalopay:
-            return {
-                message: 'ZaloPay is not supported yet',
-            }
-        case PaymentMethod.enum.momo:
-            return {
-                message: 'Momo is not supported yet',
-            }
         case PaymentMethod.enum.cash:
             return createCashPayment(params)
         default:
@@ -103,7 +101,7 @@ export async function vnpayIpn(query: Record<string, string>) {
         return vnpParams
     }
 
-    const { vnp_TxnRef, vnp_Amount, vnp_ResponseCode } = vnpParams
+    const { vnp_TxnRef, vnp_Amount, vnp_ResponseCode ,vnp_TransactionNo} = vnpParams
 
     if (!vnp_TxnRef || vnp_Amount == null || !vnp_ResponseCode) {
         return { RspCode: '99', Message: 'Invalid request' }
@@ -120,24 +118,16 @@ export async function vnpayIpn(query: Record<string, string>) {
             return { RspCode: '00', Message: 'Already confirmed' }
         }
 
-        if (
-            payment.status === PaymentStatus.enum.failed ||
-            payment.expiredAt < utils.time.getNow().toDate()
-        ) {
-            return { RspCode: '00', Message: 'Payment failed or expired' }
-        }
-
-
         if (payment.amount !== Number(vnp_Amount) / 100) {
             return { RspCode: '04', Message: 'Invalid amount' }
         }
 
         if (vnp_ResponseCode !== '00') {
             await dal.payment.payment.cmd.updatePaymentStatusFailed(vnp_TxnRef, tx)
-            return { RspCode: '00', Message: 'Payment failed recorded' }
+            return { RspCode: '24', Message: 'Payment failed' }
         }
 
-        await dal.payment.payment.cmd.updatePaymentStatusSuccess(vnp_TxnRef, tx)
+        await dal.payment.payment.cmd.updatePaymentStatusSuccess(vnp_TxnRef, vnp_TransactionNo, tx)
         return { RspCode: '00', Message: 'Confirm Success' }
     })
 }

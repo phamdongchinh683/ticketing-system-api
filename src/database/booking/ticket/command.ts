@@ -53,7 +53,10 @@ export async function updateTicketStatus(
 
 export async function cancelTicketTransaction(id: BookingTicketId) {
     return db.transaction().execute(async trx => {
-        const ticket = await dal.booking.ticket.cmd.updateTicketStatus({ id, status: BookingTicketStatus.enum.cancelled }, trx);
+        const ticket = await dal.booking.ticket.cmd.updateTicketStatus(
+            { id, status: BookingTicketStatus.enum.cancelled },
+            trx
+        )
 
         const tickets = await dal.booking.ticket.cmd.updateTicketStatusByBookingId(
             {

@@ -15,21 +15,19 @@ export const TicketBody = z.object({
 
 export type TicketBody = z.infer<typeof TicketBody>
 
-
 export const TicketCancelResponse = z.object({
     message: z.string(),
-    tickets: z.array(z.object({
-        id: BookingTicketId,
-        status: BookingTicketStatus,
-    })),
+    tickets: z.array(
+        z.object({
+            id: BookingTicketId,
+            status: BookingTicketStatus,
+        })
+    ),
 })
 export type TicketCancelResponse = z.infer<typeof TicketCancelResponse>
 
-
 export const TicketsResponse = z.object({
-    tickets: z.array(
-        TicketBody
-    ),
+    tickets: z.array(TicketBody),
     next: BookingTicketId.nullable(),
 })
 

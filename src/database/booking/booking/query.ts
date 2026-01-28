@@ -13,11 +13,14 @@ export async function getAmountByBookingId(bookingId: BookingId) {
         .executeTakeFirstOrThrow()
 }
 
-export async function getBookingByUserIdAndBookingId(params : {
-    userId: AuthUserId
-    bookingId?: BookingId
-    ticketId?: BookingTicketId
-}, trx?: Transaction<Database>) {
+export async function getBookingByUserIdAndBookingId(
+    params: {
+        userId: AuthUserId
+        bookingId?: BookingId
+        ticketId?: BookingTicketId
+    },
+    trx?: Transaction<Database>
+) {
     const { userId, bookingId, ticketId } = params
     return (trx ?? db)
         .selectFrom('booking.booking as b')
