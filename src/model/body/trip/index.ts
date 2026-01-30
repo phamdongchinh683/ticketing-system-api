@@ -1,8 +1,11 @@
 import z from 'zod'
 import { OperationTripId } from '../../../database/operation/trip/type.js'
-import { OrganizationVehicleType } from '../../../database/organization/vehicle/type.js'
+import {
+    OrganizationVehicleType,
+} from '../../../database/organization/vehicle/type.js'
 import { OrganizationSeatId } from '../../../database/organization/seat/type.js'
 import { OperationStationId } from '../../../database/operation/station/type.js'
+import { OperationTripScheduleId } from '../../../database/operation/trip-schedule/type.js'
 
 export const TripResponse = z.object({
     trips: z.array(
@@ -65,3 +68,16 @@ export const TripSeatResponse = z.object({
 })
 
 export type TripSeatResponse = z.infer<typeof TripSeatResponse>
+
+export const TripBody = z.object({
+    scheduleId: OperationTripScheduleId,
+    departureDate: z.coerce.date(),
+})
+
+export type TripBody = z.infer<typeof TripBody>
+
+export const TripPrepareResponse = z.object({
+    id: OperationTripId,
+})
+
+export type TripPrepareResponse = z.infer<typeof TripPrepareResponse>

@@ -9,8 +9,8 @@ export interface OperationTripStopTable extends Timestamps {
     tripId: OperationTripId
     stationId: OperationStationId
     stopOrder: number
-    arrivalTime: Date
-    departureTime: Date
+    arrivalTime: Date | null
+    departureTime: Date | null
     allowPickup: boolean
     allowDropoff: boolean
 }

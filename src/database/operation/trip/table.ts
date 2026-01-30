@@ -4,15 +4,16 @@ import { OperationTripId, OperationTripStatus } from './type.js'
 import { OperationRouteId } from '../route/type.js'
 import { OrganizationVehicleId } from '../../organization/vehicle/type.js'
 import { AuthUserId } from '../../auth/user/type.js'
+import { OperationTripScheduleId } from '../trip-schedule/type.js'
 
 export interface OperationTripTable extends Timestamps {
     id: GeneratedAlways<OperationTripId>
     routeId: OperationRouteId
-    vehicleId: OrganizationVehicleId
-    driverId: AuthUserId
+    vehicleId: OrganizationVehicleId | null
+    scheduleId: OperationTripScheduleId
+    driverId: AuthUserId | null
     departureDate: Date
     status: OperationTripStatus
-    password: string
 }
 
 export type OperationTripTableInsert = Insertable<OperationTripTable>

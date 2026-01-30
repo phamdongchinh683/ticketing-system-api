@@ -1,4 +1,5 @@
 import { dal } from '../../database/index.js'
+import { TripBody } from '../../model/body/trip/index.js'
 import { TripFilter } from '../../model/query/trip/index.js'
 
 export async function getTrips(query: TripFilter) {
@@ -14,4 +15,8 @@ export async function getTrips(query: TripFilter) {
         trips: data,
         next,
     }
+}
+
+export async function prepareTrip(body: TripBody) {
+    return await dal.operation.trip.cmd.createTripTransaction(body)
 }

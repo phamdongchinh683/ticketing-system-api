@@ -15,7 +15,7 @@ function getOccupiedSeatsSubQuery(params: TripSeatParam) {
     return db
         .selectFrom('booking.seat_segment as ss')
         .innerJoin('operation.trip_stop as ts', join =>
-            join.onRef('ts.stationId', '=', 'ss.fromStationId')
+            join.onRef('ts.tripId', '=', 'ss.tripId').onRef('ts.stationId', '=', 'ss.fromStationId')
         )
         .innerJoin('operation.trip_stop as fs', join =>
             join.onRef('fs.stationId', '=', 'ss.toStationId').onRef('fs.tripId', '=', 'ss.tripId')
@@ -23,12 +23,8 @@ function getOccupiedSeatsSubQuery(params: TripSeatParam) {
         .where(eb => {
             const cond = []
             cond.push(eb('ss.tripId', '=', id))
-            if (pickup) {
-                cond.push(eb('ts.stopOrder', '>', pickup))
-            }
-            if (dropoff) {
-                cond.push(eb('fs.stopOrder', '<', dropoff))
-            }
+            cond.push(eb('ts.stopOrder', '<', dropoff))
+            cond.push(eb('fs.stopOrder', '>', pickup))
             return eb.and(cond)
         })
         .select(['ss.seatId'])
@@ -42,10 +38,10 @@ function getVehicleIdByTrip(tripId: OperationTripId) {
         .executeTakeFirstOrThrow()
 }
 
-export async function getAvailableSeats(params: TripSeatParam) {
-    const { id } = params
-    const { vehicleId } = await getVehicleIdByTrip(id)
-
+export async function getAvailableSeats(params: TripSeatParam ) {
+    
+    const { vehicleId } = await getVehicleIdByTrip(params.id)
+    
     return db
         .selectFrom('organization.seat as s')
         .select(['s.id', 's.seatNumber'])

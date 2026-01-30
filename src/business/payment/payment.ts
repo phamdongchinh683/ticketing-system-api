@@ -101,7 +101,7 @@ export async function vnpayIpn(query: Record<string, string>) {
         return vnpParams
     }
 
-    const { vnp_TxnRef, vnp_Amount, vnp_ResponseCode ,vnp_TransactionNo} = vnpParams
+    const { vnp_TxnRef, vnp_Amount, vnp_ResponseCode, vnp_TransactionNo } = vnpParams
 
     if (!vnp_TxnRef || vnp_Amount == null || !vnp_ResponseCode) {
         return { RspCode: '99', Message: 'Invalid request' }
