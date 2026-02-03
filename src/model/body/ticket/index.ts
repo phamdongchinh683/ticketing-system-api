@@ -48,9 +48,24 @@ export const TicketResponse = z.object({
         type: OrganizationVehicleType.nullable(),
         fromLocation: z.string().nullable(),
         toLocation: z.string().nullable(),
-        price: z.number().nullable(),
         currency: z.string().nullable(),
+        departureTime: z.string().nullable(),
     }),
 })
 
 export type TicketResponse = z.infer<typeof TicketResponse>
+
+export const TicketStatusBody = z.object({
+    status: BookingTicketStatus,
+})
+
+export type TicketStatusBody = z.infer<typeof TicketStatusBody>
+
+export const TicketCheckInResponse = z.object({
+    message: z.string(),
+    ticket: z.object({
+        id: BookingTicketId,
+        status: BookingTicketStatus,
+    }),
+})
+export type TicketCheckInResponse = z.infer<typeof TicketCheckInResponse>

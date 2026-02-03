@@ -1,19 +1,24 @@
-import { OrganizationVehicleId } from "./type.js";
-import { sql, Transaction } from "kysely";
-import { Database } from "../../../datasource/type.js";
-import { db } from "../../../datasource/db.js";
-import { OrganizationBusCompanyId } from "../bus_company/type.js";
+import { OrganizationVehicleId } from './type.js'
+import { sql, Transaction } from 'kysely'
+import { Database } from '../../../datasource/type.js'
+import { db } from '../../../datasource/db.js'
+import { OrganizationBusCompanyId } from '../bus_company/type.js'
 
 export async function findById(id: OrganizationVehicleId, trx?: Transaction<Database>) {
-    return (trx ?? db).selectFrom('organization.vehicle as v')
+    return (trx ?? db)
+        .selectFrom('organization.vehicle as v')
         .where('v.id', '=', id)
         .selectAll()
         .executeTakeFirstOrThrow()
 }
 
-export async function randomVehicle(companyId: OrganizationBusCompanyId, trx?: Transaction<Database>) {
-    return (trx ?? db).selectFrom('organization.vehicle as v')
-        .where((eb) => {
+export async function randomVehicle(
+    companyId: OrganizationBusCompanyId,
+    trx?: Transaction<Database>
+) {
+    return (trx ?? db)
+        .selectFrom('organization.vehicle as v')
+        .where(eb => {
             const cond = []
             cond.push(eb('v.companyId', '=', companyId))
             cond.push(eb('v.status', '=', 'active'))
@@ -23,5 +28,4 @@ export async function randomVehicle(companyId: OrganizationBusCompanyId, trx?: T
         .limit(1)
         .select('v.id')
         .executeTakeFirstOrThrow()
-
 }

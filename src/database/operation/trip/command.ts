@@ -1,12 +1,13 @@
-import { TripFilter } from '../../../model/query/trip/index.js'
+import { DriverTripQuery, TripFilter } from '../../../model/query/trip/index.js'
 import { dal } from '../../index.js'
 import { TripBody } from '../../../model/body/trip/index.js'
 import { Transaction } from 'kysely'
 import { Database } from '../../../datasource/type.js'
-import { OperationTripStatus } from './type.js'
+import { OperationTripId, OperationTripStatus } from './type.js'
 import { OperationTripTableInsert } from './table.js'
 import { db } from '../../../datasource/db.js'
 import { utils } from '../../../utils/index.js'
+import { AuthUserId } from '../../auth/user/type.js'
 export async function getManyByFilter(params: TripFilter) {
     return dal.operation.trip.query.findAllByFilter(params)
 }
@@ -40,7 +41,9 @@ export async function createTripTransaction(params: TripBody) {
                 scheduleId: schedule.id,
                 departureDate: departureDate,
                 routeId: schedule.routeId,
-                vehicleId: (await dal.organization.vehicle.cmd.randomVehicle(schedule.companyId, trx)).id,
+                vehicleId: (
+                    await dal.organization.vehicle.cmd.randomVehicle(schedule.companyId, trx)
+                ).id,
                 driverId: null,
                 status: OperationTripStatus.enum.scheduled,
             },
@@ -80,4 +83,13 @@ export async function createTripTransaction(params: TripBody) {
 
         return trip
     })
+}
+
+export async function getManyByDriverId(params: DriverTripQuery, userId: AuthUserId) {
+    return dal.operation.trip.query.findAllByDriverId(params, userId)
+}
+
+
+export async function updateStatus(params: { id: OperationTripId; status: OperationTripStatus; userId: AuthUserId } , trx?: Transaction<Database>) {
+    return (trx ?? db).updateTable('operation.trip').set({ status: params.status, driverId: params.userId }).where('id', '=', params.id).returningAll().executeTakeFirstOrThrow()
 }

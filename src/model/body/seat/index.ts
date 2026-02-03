@@ -1,5 +1,5 @@
-import { OperationTripId } from "../../../database/operation/trip/type.js"
-import z from "zod"
+import { OperationTripId } from '../../../database/operation/trip/type.js'
+import z from 'zod'
 export const SeatBody = z.object({
     id: OperationTripId,
     date: z.coerce.date(),

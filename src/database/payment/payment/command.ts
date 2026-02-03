@@ -6,7 +6,7 @@ import { db } from '../../../datasource/db.js'
 import { dal } from '../../index.js'
 import { PaymentStatus } from './type.js'
 import { utils } from '../../../utils/index.js'
-import { BookingStatus } from '../../booking/booking/type.js'
+import { BookingId, BookingStatus } from '../../booking/booking/type.js'
 import { BookingTicketStatus } from '../../booking/ticket/type.js'
 
 export async function createPaymentTransaction(
@@ -86,4 +86,15 @@ export async function updatePaymentStatusFailed(
     for (const t of ticket) {
         await dal.booking.seatSegment.cmd.deleteByTicketId(t.id, tx)
     }
+}
+
+export async function updatePaymentStatusByBookingId(
+    params: {
+        id: BookingId,
+        status: PaymentStatus,
+    },
+    trx: Transaction<Database>
+) {
+    const { id, status } = params
+    return trx.updateTable('payment.payment as pm').set({ status }).where('pm.bookingId', '=', id).returningAll().executeTakeFirstOrThrow()
 }

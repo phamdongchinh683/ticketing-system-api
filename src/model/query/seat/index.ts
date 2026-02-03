@@ -1,6 +1,6 @@
-import z from "zod"
+import z from 'zod'
 
-export const TripSeatQuery = z.object({ 
+export const TripSeatQuery = z.object({
     pickup: z.coerce.number().int(),
     dropoff: z.coerce.number().int(),
 })

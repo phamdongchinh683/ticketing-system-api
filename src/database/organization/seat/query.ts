@@ -38,10 +38,9 @@ function getVehicleIdByTrip(tripId: OperationTripId) {
         .executeTakeFirstOrThrow()
 }
 
-export async function getAvailableSeats(params: TripSeatParam ) {
-    
+export async function getAvailableSeats(params: TripSeatParam) {
     const { vehicleId } = await getVehicleIdByTrip(params.id)
-    
+
     return db
         .selectFrom('organization.seat as s')
         .select(['s.id', 's.seatNumber'])

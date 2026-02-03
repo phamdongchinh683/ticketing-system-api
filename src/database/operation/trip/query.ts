@@ -1,7 +1,9 @@
 import { sql } from 'kysely'
 import { db } from '../../../datasource/db.js'
-import { TripFilter } from '../../../model/query/trip/index.js'
+import { DriverTripQuery, TripFilter } from '../../../model/query/trip/index.js'
 import { OperationTripStatus } from './type.js'
+import { AuthUserId } from '../../auth/user/type.js'
+import { utils } from '../../../utils/index.js'
 
 export async function findAllByFilter(filter: TripFilter) {
     const { limit, next, from, to, date, orderByPrice } = filter
@@ -15,9 +17,9 @@ export async function findAllByFilter(filter: TripFilter) {
             const cond = []
 
             cond.push(eb('t.status', '=', OperationTripStatus.enum.scheduled))
-            cond.push(eb('r.fromLocation', '=', filter.from))
-            cond.push(eb('r.toLocation', '=', filter.to))
-            cond.push(eb('t.departureDate', '=', filter.date))
+            cond.push(eb('r.fromLocation', '=', from))
+            cond.push(eb('r.toLocation', '=', to))
+            cond.push(eb('t.departureDate', '=', date))
 
             if (next) {
                 cond.push(eb('t.id', '>', next))
@@ -54,5 +56,45 @@ export async function findAllByFilter(filter: TripFilter) {
         ])
         .orderBy(sql<number>`min(${sql.ref('tp.price')})`, orderByPrice)
         .limit(limit + 1)
+        .execute()
+}
+
+export async function findAllByDriverId(params: DriverTripQuery, userId: AuthUserId) {
+    const { limit, next, date, orderBy } = params
+    const now = utils.time.getNow().toDate()
+    return db
+        .selectFrom('operation.trip as t')
+        .innerJoin('operation.route as r', 'r.id', 't.routeId')
+        .innerJoin('organization.vehicle as v', 'v.id', 't.vehicleId')
+        .innerJoin('operation.trip_schedule as ts', 'ts.id', 't.scheduleId')
+        .where(eb => {
+            const cond = []
+            cond.push(eb('t.driverId', '=', userId))
+            cond.push(eb('t.status', '=', OperationTripStatus.enum.scheduled))
+            if (!date) {
+                cond.push(eb('t.departureDate', '=', now))
+            } else {
+                cond.push(eb('t.departureDate', '=', date))
+            }
+            if (next) {
+                cond.push(eb('t.id', '>', next))
+            }
+
+            return eb.and(cond)
+        })
+        .select([
+            't.id',
+            'v.plateNumber',
+            'v.type',
+            'v.totalSeats',
+            'r.fromLocation',
+            'r.toLocation',
+            'r.distanceKm',
+            'r.durationMinutes',
+            'ts.departureTime',
+            't.departureDate',
+        ])
+        .limit(limit + 1)
+        .orderBy('ts.departureTime', orderBy)
         .execute()
 }

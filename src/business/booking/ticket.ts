@@ -1,9 +1,11 @@
-import { BookingTicketId } from '../../database/booking/ticket/type.js'
+import { BookingTicketId, BookingTicketStatus } from '../../database/booking/ticket/type.js'
 import { AuthUserId } from '../../database/auth/user/type.js'
 import { dal } from '../../database/index.js'
 import { TicketFilter } from '../../model/query/ticket/index.js'
 import { HttpErr } from '../../app/index.js'
 import { BookingStatus } from '../../database/booking/booking/type.js'
+import { utils } from '../../utils/index.js'
+import { OperationTripId } from '../../database/operation/trip/type.js'
 
 export async function getTickets(q: TicketFilter, userId: AuthUserId) {
     const tickets = await dal.booking.ticket.query.findAll(q, userId)
@@ -35,15 +37,23 @@ export async function cancelTicket(id: BookingTicketId, userId: AuthUserId) {
     }
 
     if (
-        data.status === BookingStatus.enum.cancelled ||
-        data.status === BookingStatus.enum.expired
+        data.status !== BookingStatus.enum.pending ||
+        data.expiredAt < utils.time.getNow().toDate()
     ) {
-        throw new HttpErr.Forbidden('This ticket has already been cancelled or expired')
+        throw new HttpErr.Forbidden('This ticket has already been processed')
     }
 
     const tickets = await dal.booking.ticket.cmd.cancelTicketTransaction(id)
     return {
         message: 'OK',
         tickets: tickets,
+    }
+}
+
+export async function checkInTicket(params: {id: BookingTicketId; status: BookingTicketStatus; tripId?: OperationTripId}) {
+    const ticket = await dal.booking.ticket.cmd.updateStatusTicket(params)
+    return {
+        message: 'OK',
+        ticket: ticket,
     }
 }

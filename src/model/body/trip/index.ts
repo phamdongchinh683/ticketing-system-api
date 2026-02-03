@@ -1,11 +1,11 @@
 import z from 'zod'
-import { OperationTripId } from '../../../database/operation/trip/type.js'
-import {
-    OrganizationVehicleType,
-} from '../../../database/organization/vehicle/type.js'
+import { OperationTripId, OperationTripStatus } from '../../../database/operation/trip/type.js'
+import { OrganizationVehicleType } from '../../../database/organization/vehicle/type.js'
 import { OrganizationSeatId } from '../../../database/organization/seat/type.js'
 import { OperationStationId } from '../../../database/operation/station/type.js'
 import { OperationTripScheduleId } from '../../../database/operation/trip-schedule/type.js'
+import { BookingTicketId } from '../../../database/booking/ticket/type.js'
+import { BookingStatus } from '../../../database/booking/booking/type.js'
 
 export const TripResponse = z.object({
     trips: z.array(
@@ -81,3 +81,53 @@ export const TripPrepareResponse = z.object({
 })
 
 export type TripPrepareResponse = z.infer<typeof TripPrepareResponse>
+
+export const DriverTripBody = z.object({
+    trips: z.array(
+        z.object({
+            id: OperationTripId,
+            type: OrganizationVehicleType,
+            totalSeats: z.number(),
+            fromLocation: z.string(),
+            toLocation: z.string(),
+            distanceKm: z.number(),
+            durationMinutes: z.number(),
+            plateNumber: z.string(),
+            departureTime: z.string(),
+            departureDate: z.coerce.date(),
+        })
+    ),
+    next: OperationTripId.nullable(),
+})
+
+export type DriverTripBody = z.infer<typeof DriverTripBody>
+
+export const TripPassengerResponse = z.object({
+    passengers: z.array(
+        z.object({
+            id: BookingTicketId,
+            fullName: z.string(),
+            phoneNumber: z.string(),
+            seatNumber: z.string().nullable(),
+            status: BookingStatus,
+            pickup: z.string().nullable(),
+            dropoff: z.string().nullable(),
+        }),
+    ),
+    next: BookingTicketId.nullable(),
+})
+
+export type TripPassengerResponse = z.infer<typeof TripPassengerResponse>
+
+export const TripUpdateBody = z.object({
+    status: OperationTripStatus,
+})
+
+export type TripUpdateBody = z.infer<typeof TripUpdateBody>
+
+export const TripUpdateResponse = z.object({
+    id: OperationTripId,
+    status: OperationTripStatus,
+})
+
+export type TripUpdateResponse = z.infer<typeof TripUpdateResponse>

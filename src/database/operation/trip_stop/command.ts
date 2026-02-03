@@ -47,9 +47,5 @@ export async function createTripStopBulk(
     if (dataFiltered.length === 0) {
         return []
     }
-    return trx
-        .insertInto('operation.trip_stop')
-        .values(dataFiltered)
-        .returning('id')
-        .execute()
+    return trx.insertInto('operation.trip_stop').values(dataFiltered).returning('id').execute()
 }

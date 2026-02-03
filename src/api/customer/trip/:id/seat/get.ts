@@ -1,4 +1,4 @@
-import { TripIdParam, TripSeatParam } from '../../../../../model/params/trip/index.js'
+import { TripIdParam } from '../../../../../model/params/trip/index.js'
 import { api, endpoint, bearer, tags } from '../../../../../app/api.js'
 import { requireRoles } from '../../../../../app/jwt/handler.js'
 import { bus } from '../../../../../business/index.js'
@@ -17,7 +17,7 @@ api.route({
         return await bus.organization.seat.getSeats({ id, pickup, dropoff })
     },
 
-    schema: {   
+    schema: {
         params: TripIdParam,
         querystring: TripSeatQuery,
         response: { 200: TripSeatResponse },
