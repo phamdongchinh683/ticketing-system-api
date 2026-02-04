@@ -6,3 +6,14 @@ export function parseContactInfo(contactInfo: ContactInfo) {
         phone: contactInfo.phone,
     }
 }
+
+export function paginateByCursor<T extends { id: number | string }>(items: T[], limit = 10) {
+    const hasNextPage = items.length > limit
+    const data = hasNextPage ? items.slice(0, limit) : items
+    const next = hasNextPage ? data[data.length - 1]?.id : null
+
+    return {
+        data,
+        next,
+    }
+}

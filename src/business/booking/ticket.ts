@@ -9,13 +9,11 @@ import { OperationTripId } from '../../database/operation/trip/type.js'
 
 export async function getTickets(q: TicketFilter, userId: AuthUserId) {
     const tickets = await dal.booking.ticket.query.findAll(q, userId)
-    const hasNextPage = tickets.length > q.limit
-    const data = hasNextPage ? tickets.slice(0, q.limit) : tickets
-    const next = hasNextPage ? data[data.length - 1]?.id : null
+    const { data, next } = utils.common.paginateByCursor(tickets, q.limit)
 
     return {
         tickets: data,
-        next,
+        next: next,
     }
 }
 

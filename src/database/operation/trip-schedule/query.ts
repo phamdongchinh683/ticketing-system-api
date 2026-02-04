@@ -1,7 +1,11 @@
 import { db } from '../../../datasource/db.js'
 import { TripScheduleFilter } from '../../../model/query/trip-schedule/index.js'
+import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
 
-export async function findAllByFilter(query: TripScheduleFilter) {
+export async function findAllByFilter(
+    query: TripScheduleFilter,
+    companyId?: OrganizationBusCompanyId
+) {
     const { limit = 10, next, from, to, date, orderBy } = query
 
     return db
@@ -23,11 +27,20 @@ export async function findAllByFilter(query: TripScheduleFilter) {
         .where(eb => {
             const cond = []
             cond.push(eb('ts.status', '=', true))
-            cond.push(eb('r.fromLocation', '=', from))
-            cond.push(eb('r.toLocation', '=', to))
-            cond.push(eb('ts.startDate', '<=', date))
-            cond.push(eb('ts.endDate', '>=', date))
+            if (from) {
+                cond.push(eb('r.fromLocation', '=', from))
+            }
+            if (to) {
+                cond.push(eb('r.toLocation', '=', to))
+            }
+            if (date) {
+                cond.push(eb('ts.startDate', '<=', date))
+                cond.push(eb('ts.endDate', '>=', date))
+            }
 
+            if (companyId) {
+                cond.push(eb('ts.companyId', '=', companyId))
+            }
             if (next) {
                 cond.push(eb('ts.id', '>', next))
             }

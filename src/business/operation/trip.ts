@@ -4,19 +4,17 @@ import { dal } from '../../database/index.js'
 import { TripBody } from '../../model/body/trip/index.js'
 import { DriverTripQuery, TripFilter } from '../../model/query/trip/index.js'
 import { PassengerTicketFilter } from '../../model/query/ticket/index.js'
+import { utils } from '../../utils/index.js'
+import { OperationTripScheduleId } from '../../database/operation/trip-schedule/type.js'
 
 export async function getTrips(query: TripFilter) {
-    const limit = query.limit ?? 10
     const trips = await dal.operation.trip.cmd.getManyByFilter(query)
 
-    const hasNextPage = trips.length > limit
-    const data = hasNextPage ? trips.slice(0, limit) : trips
-
-    const next = hasNextPage ? data[data.length - 1]?.id : null
+    const { data, next } = utils.common.paginateByCursor(trips, query.limit)
 
     return {
         trips: data,
-        next,
+        next: next,
     }
 }
 
@@ -33,24 +31,19 @@ export async function getPassengerList(
         { tripId, driverId },
         q
     )
-    const hasNextPage = passengers.length > q.limit
-    const data = hasNextPage ? passengers.slice(0, q.limit) : passengers
-    const next = hasNextPage ? data[data.length - 1]?.id : null
+
+    const { data, next } = utils.common.paginateByCursor(passengers, q.limit)
 
     return {
         passengers: data,
-        next,
+        next: next,
     }
 }
 
 export async function getDriverTrips(query: DriverTripQuery, userId: AuthUserId) {
-    const limit = query.limit ?? 10
     const trips = await dal.operation.trip.cmd.getManyByDriverId(query, userId)
 
-    const hasNextPage = trips.length > limit
-    const data = hasNextPage ? trips.slice(0, limit) : trips
-
-    const next = hasNextPage ? data[data.length - 1]?.id : null
+    const { data, next } = utils.common.paginateByCursor(trips, query.limit)
 
     return {
         trips: data,
@@ -64,4 +57,14 @@ export async function updateTripStatus(params: {
     userId: AuthUserId
 }) {
     return await dal.operation.trip.cmd.updateStatus(params)
+}
+
+export async function getTripByScheduleId(q: TripFilter, scheduleId: OperationTripScheduleId) {
+    const trips = await dal.operation.trip.query.findAllByFilter(q, scheduleId)
+    const { data, next } = utils.common.paginateByCursor(trips, q.limit)
+
+    return {
+        trips: data,
+        next: next,
+    }
 }

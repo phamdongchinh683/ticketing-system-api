@@ -10,6 +10,7 @@ export function getOne(params: { username?: string; email?: string; phone?: stri
     return db
         .selectFrom('auth.user')
         .leftJoin('auth.staff_profile', 'auth.user.id', 'auth.staff_profile.userId')
+        .leftJoin('auth.staff_detail', 'auth.user.id', 'auth.staff_detail.userId')
         .select([
             'auth.user.username',
             'auth.user.fullName',
@@ -18,6 +19,7 @@ export function getOne(params: { username?: string; email?: string; phone?: stri
             'auth.user.phone',
             'auth.user.role',
             'auth.user.status',
+            'auth.staff_detail.companyId',
             'auth.staff_profile.role as staffProfileRole',
         ])
         .where(eb => {

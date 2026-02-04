@@ -20,6 +20,7 @@ export const TripResponse = z.object({
             plateNumber: z.string(),
             type: OrganizationVehicleType,
             totalSeats: z.number(),
+            status: OperationTripStatus,
         })
     ),
     next: OperationTripId.nullable(),

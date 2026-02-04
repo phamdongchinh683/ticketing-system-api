@@ -2,13 +2,15 @@ import z from 'zod'
 import { OrderBy } from '../../common.js'
 import { OperationTripId } from '../../../database/operation/trip/type.js'
 import { OperationStationId } from '../../../database/operation/station/type.js'
+import { OperationTripStatus } from '../../../database/operation/trip/type.js'
 
 export const TripFilter = z.object({
     limit: z.coerce.number().optional().default(10),
     next: OperationTripId.optional(),
-    from: z.string(),
-    to: z.string(),
-    date: z.coerce.date(),
+    from: z.string().optional(),
+    status: OperationTripStatus.optional(),
+    to: z.string().optional(),
+    date: z.coerce.date().optional(),
     orderByPrice: OrderBy,
 })
 

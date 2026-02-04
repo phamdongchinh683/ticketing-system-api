@@ -5,9 +5,9 @@ import { OrderBy } from '../../common.js'
 export const TripScheduleFilter = z.object({
     limit: z.coerce.number().optional().default(10),
     next: OperationTripScheduleId.optional(),
-    from: z.string(),
-    to: z.string(),
-    date: z.coerce.date(),
+    from: z.string().optional(),
+    to: z.string().optional(),
+    date: z.coerce.date().optional(),
     orderBy: OrderBy,
 })
 

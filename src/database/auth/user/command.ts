@@ -1,4 +1,4 @@
-import { AuthUserTableInsert, AuthUserTableUpdate } from './table.js'
+import { AuthUserTableInsert } from './table.js'
 import { dal } from '../../index.js'
 import { HttpErr } from '../../../app/index.js'
 import { DatabaseError } from 'pg'
@@ -50,7 +50,10 @@ export async function insertOne(params: AuthUserTableInsert, trx?: Transaction<D
         .executeTakeFirstOrThrow()
 }
 
-export async function signUpCompanyAdmin(params: AuthCompanyAdminSignUpBody, staffRole: AuthStaffProfileRole) {
+export async function signUpCompanyAdmin(
+    params: AuthCompanyAdminSignUpBody,
+    staffRole: AuthStaffProfileRole
+) {
     const { phone, email } = utils.common.parseContactInfo(params.contactInfo)
 
     return await db.transaction().execute(async (trx: Transaction<Database>) => {
@@ -108,7 +111,10 @@ export async function signUpCompanyAdmin(params: AuthCompanyAdminSignUpBody, sta
         )
 
         return {
-            message: 'Please contact the administrator to activate your account',
+            message:
+                staffRole === AuthStaffProfileRole.enum.super_admin
+                    ? 'Please contact the business to activate your account'
+                    : 'Please contact the administrator to activate your account',
             user: user,
         }
     })

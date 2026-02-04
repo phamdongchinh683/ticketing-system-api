@@ -4,9 +4,10 @@ import { DriverTripQuery, TripFilter } from '../../../model/query/trip/index.js'
 import { OperationTripStatus } from './type.js'
 import { AuthUserId } from '../../auth/user/type.js'
 import { utils } from '../../../utils/index.js'
+import { OperationTripScheduleId } from '../trip-schedule/type.js'
 
-export async function findAllByFilter(filter: TripFilter) {
-    const { limit, next, from, to, date, orderByPrice } = filter
+export async function findAllByFilter(filter: TripFilter, scheduleId?: OperationTripScheduleId) {
+    const { limit, next, from, to, date, orderByPrice, status } = filter
     return db
         .selectFrom('operation.trip as t')
         .innerJoin('operation.route as r', 't.routeId', 'r.id')
@@ -16,13 +17,26 @@ export async function findAllByFilter(filter: TripFilter) {
         .where(eb => {
             const cond = []
 
-            cond.push(eb('t.status', '=', OperationTripStatus.enum.scheduled))
-            cond.push(eb('r.fromLocation', '=', from))
-            cond.push(eb('r.toLocation', '=', to))
-            cond.push(eb('t.departureDate', '=', date))
+            if (from) {
+                cond.push(eb('r.fromLocation', '=', from))
+            }
+            if (to) {
+                cond.push(eb('r.toLocation', '=', to))
+            }
+            if (date) {
+                cond.push(eb('t.departureDate', '=', date))
+            }
 
             if (next) {
                 cond.push(eb('t.id', '>', next))
+            }
+
+            if (scheduleId) {
+                cond.push(eb('t.scheduleId', '=', scheduleId))
+            }
+
+            if (status) {
+                cond.push(eb('t.status', '=', status))
             }
 
             return eb.and(cond)
@@ -39,6 +53,7 @@ export async function findAllByFilter(filter: TripFilter) {
             'r.distanceKm',
             'r.durationMinutes',
             'tp.currency',
+            't.status',
             sql<number>`min(${sql.ref('tp.price')})`.as('price'),
         ])
         .groupBy([

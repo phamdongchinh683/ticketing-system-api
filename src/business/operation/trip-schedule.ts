@@ -1,17 +1,28 @@
 import { TripScheduleFilter } from '../../model/query/trip-schedule/index.js'
 import { dal } from '../../database/index.js'
+import { OrganizationBusCompanyId } from '../../database/organization/bus_company/type.js'
+import { utils } from '../../utils/index.js'
 
 export async function getTripSchedules(query: TripScheduleFilter) {
-    const limit = query.limit ?? 10
     const tripSchedules = await dal.operation.tripSchedule.cmd.getTripSchedules(query)
-
-    const hasNextPage = tripSchedules.length > limit
-    const data = hasNextPage ? tripSchedules.slice(0, limit) : tripSchedules
-
-    const next = hasNextPage ? data[data.length - 1]?.id : null
+    const { data, next } = utils.common.paginateByCursor(tripSchedules, query.limit)
 
     return {
         trip: data,
-        next,
+        next: next,
+    }
+}
+
+export async function getTripSchedulesByCompanyId(
+    query: TripScheduleFilter,
+    companyId: OrganizationBusCompanyId
+) {
+    const tripSchedules = await dal.operation.tripSchedule.query.findAllByFilter(query, companyId)
+
+    const { data, next } = utils.common.paginateByCursor(tripSchedules, query.limit)
+
+    return {
+        trip: data,
+        next: next,
     }
 }

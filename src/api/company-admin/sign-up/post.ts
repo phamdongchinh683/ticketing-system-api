@@ -17,7 +17,10 @@ api.route({
         },
     },
     handler: async request => {
-        return await bus.auth.adminRegister.register(request.body, AuthStaffProfileRole.enum.company_admin)
+        return await bus.auth.adminRegister.register(
+            request.body,
+            AuthStaffProfileRole.enum.company_admin
+        )
     },
 
     schema: {
