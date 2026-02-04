@@ -112,7 +112,7 @@ export const TripPassengerResponse = z.object({
             status: BookingStatus,
             pickup: z.string().nullable(),
             dropoff: z.string().nullable(),
-        }),
+        })
     ),
     next: BookingTicketId.nullable(),
 })

@@ -79,10 +79,13 @@ export async function findById(id: BookingTicketId, userId: AuthUserId) {
         .executeTakeFirstOrThrow()
 }
 
-export async function findPassengersByDriverAndTripId(params: {
-    driverId: AuthUserId
-    tripId: OperationTripId
-}, query: PassengerTicketFilter) {
+export async function findPassengersByDriverAndTripId(
+    params: {
+        driverId: AuthUserId
+        tripId: OperationTripId
+    },
+    query: PassengerTicketFilter
+) {
     const { driverId, tripId } = params
     const { limit, next, phoneNumber } = query
     return db

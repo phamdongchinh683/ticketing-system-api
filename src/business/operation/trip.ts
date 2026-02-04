@@ -24,9 +24,15 @@ export async function prepareTrip(body: TripBody) {
     return await dal.operation.trip.cmd.createTripTransaction(body)
 }
 
-export async function getPassengerList(params: { tripId: OperationTripId; driverId: AuthUserId }, q: PassengerTicketFilter) {
+export async function getPassengerList(
+    params: { tripId: OperationTripId; driverId: AuthUserId },
+    q: PassengerTicketFilter
+) {
     const { tripId, driverId } = params
-    const passengers = await dal.booking.ticket.query.findPassengersByDriverAndTripId({ tripId, driverId }, q)
+    const passengers = await dal.booking.ticket.query.findPassengersByDriverAndTripId(
+        { tripId, driverId },
+        q
+    )
     const hasNextPage = passengers.length > q.limit
     const data = hasNextPage ? passengers.slice(0, q.limit) : passengers
     const next = hasNextPage ? data[data.length - 1]?.id : null
@@ -52,7 +58,10 @@ export async function getDriverTrips(query: DriverTripQuery, userId: AuthUserId)
     }
 }
 
-
-export async function updateTripStatus(params: { id: OperationTripId; status: OperationTripStatus; userId: AuthUserId }) {
+export async function updateTripStatus(params: {
+    id: OperationTripId
+    status: OperationTripStatus
+    userId: AuthUserId
+}) {
     return await dal.operation.trip.cmd.updateStatus(params)
 }

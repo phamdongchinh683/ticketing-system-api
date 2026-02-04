@@ -50,7 +50,11 @@ export async function cancelTicket(id: BookingTicketId, userId: AuthUserId) {
     }
 }
 
-export async function checkInTicket(params: {id: BookingTicketId; status: BookingTicketStatus; tripId?: OperationTripId}) {
+export async function checkInTicket(params: {
+    id: BookingTicketId
+    status: BookingTicketStatus
+    tripId?: OperationTripId
+}) {
     const ticket = await dal.booking.ticket.cmd.updateStatusTicket(params)
     return {
         message: 'OK',

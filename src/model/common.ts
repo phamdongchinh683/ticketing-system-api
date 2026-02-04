@@ -1,5 +1,6 @@
 import z from 'zod'
 import { AuthUserRole, AuthUserStatus } from '../database/auth/user/type.js'
+import { AuthStaffProfileRole } from '../database/auth/staff_profile/type.js'
 
 export const Email = z.email()
 export type Email = z.infer<typeof Email>
@@ -14,11 +15,11 @@ export const ContactInfo = z.object({
 export type ContactInfo = z.infer<typeof ContactInfo>
 
 export const UserInfo = z.object({
-    username: z.string(),
     fullName: z.string(),
     email: Email,
     phone: Phone,
     role: AuthUserRole,
+    staffProfileRole: AuthStaffProfileRole.nullable(),
     status: AuthUserStatus,
 })
 

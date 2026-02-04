@@ -12,10 +12,13 @@ api.route({
     ...endpoint(__filename),
     handler: async request => {
         const userInfo = requireRoles(request.headers, [AuthUserRole.enum.driver])
-        return await bus.operation.trip.getPassengerList({
-            driverId: userInfo.id,
-            tripId: request.params.id,
-        }, request.query)
+        return await bus.operation.trip.getPassengerList(
+            {
+                driverId: userInfo.id,
+                tripId: request.params.id,
+            },
+            request.query
+        )
     },
 
     schema: {

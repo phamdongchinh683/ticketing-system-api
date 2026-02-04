@@ -2,6 +2,7 @@ import { BookingTicketId, BookingTicketStatus } from '../../../database/booking/
 import z from 'zod'
 import { BookingType } from '../../../database/booking/booking/type.js'
 import { OperationTripId } from '../../../database/operation/trip/type.js'
+import { Phone } from '../../common.js'
 
 export const TicketFilter = z.object({
     limit: z.coerce.number().optional().default(10),
@@ -12,17 +13,16 @@ export const TicketFilter = z.object({
 
 export type TicketFilter = z.infer<typeof TicketFilter>
 
-
 export const PassengerTicketFilter = z.object({
     limit: z.coerce.number().optional().default(10),
     next: BookingTicketId.optional(),
-    phoneNumber: z.string().optional(),
+    phoneNumber: Phone.optional(),
 })
 
 export type PassengerTicketFilter = z.infer<typeof PassengerTicketFilter>
 
 export const PassengerCheckInParam = z.object({
-    id: BookingTicketId,
-    tripId: OperationTripId.optional(),
+    id: OperationTripId.optional(),
+    passengerId: BookingTicketId,
 })
 export type PassengerCheckInParam = z.infer<typeof PassengerCheckInParam>

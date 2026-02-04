@@ -90,11 +90,16 @@ export async function updatePaymentStatusFailed(
 
 export async function updatePaymentStatusByBookingId(
     params: {
-        id: BookingId,
-        status: PaymentStatus,
+        id: BookingId
+        status: PaymentStatus
     },
     trx: Transaction<Database>
 ) {
     const { id, status } = params
-    return trx.updateTable('payment.payment as pm').set({ status }).where('pm.bookingId', '=', id).returningAll().executeTakeFirstOrThrow()
+    return trx
+        .updateTable('payment.payment as pm')
+        .set({ status })
+        .where('pm.bookingId', '=', id)
+        .returningAll()
+        .executeTakeFirstOrThrow()
 }

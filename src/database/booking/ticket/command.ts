@@ -41,7 +41,7 @@ export async function updateTicketStatusByBookingId(
 }
 
 export async function updateTicketStatus(
-    params: { id: BookingTicketId; status: BookingTicketStatus, tripId?: OperationTripId },
+    params: { id: BookingTicketId; status: BookingTicketStatus; tripId?: OperationTripId },
     trx?: Transaction<Database>
 ) {
     return (trx ?? db)
@@ -97,20 +97,36 @@ export async function cancelTicketTransaction(id: BookingTicketId) {
     })
 }
 
-
-export async function updateStatusTicket(params: {id: BookingTicketId; status: BookingTicketStatus; tripId?: OperationTripId}) {
-
+export async function updateStatusTicket(params: {
+    id: BookingTicketId
+    status: BookingTicketStatus
+    tripId?: OperationTripId
+}) {
     return db.transaction().execute(async trx => {
         const ticket = await dal.booking.ticket.cmd.updateTicketStatus(
             { id: params.id, status: params.status, tripId: params.tripId },
             trx
         )
         if (ticket.status === BookingTicketStatus.enum.checked_in) {
-            await dal.booking.booking.cmd.updateBookingStatus(ticket.bookingId, BookingStatus.enum.paid, trx)
-            await dal.payment.payment.cmd.updatePaymentStatusByBookingId({id: ticket.bookingId, status: PaymentStatus.enum.success}, trx)
+            await dal.booking.booking.cmd.updateBookingStatus(
+                ticket.bookingId,
+                BookingStatus.enum.paid,
+                trx
+            )
+            await dal.payment.payment.cmd.updatePaymentStatusByBookingId(
+                { id: ticket.bookingId, status: PaymentStatus.enum.success },
+                trx
+            )
         } else if (ticket.status === BookingTicketStatus.enum.cancelled) {
-            await dal.booking.booking.cmd.updateBookingStatus(ticket.bookingId, BookingStatus.enum.cancelled, trx)
-            await dal.payment.payment.cmd.updatePaymentStatusByBookingId({id: ticket.bookingId, status: PaymentStatus.enum.failed}, trx)
+            await dal.booking.booking.cmd.updateBookingStatus(
+                ticket.bookingId,
+                BookingStatus.enum.cancelled,
+                trx
+            )
+            await dal.payment.payment.cmd.updatePaymentStatusByBookingId(
+                { id: ticket.bookingId, status: PaymentStatus.enum.failed },
+                trx
+            )
         }
         return ticket
     })

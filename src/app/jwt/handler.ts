@@ -72,3 +72,11 @@ export const requireRoles = (headers: Headers, roleNames: string[]): any => {
     if (!roleNames.includes(role)) throw new HttpErr.Forbidden()
     return userInfo
 }
+
+export const requireStaffProfileRole = (headers: Headers, roleNames: string[]): any => {
+    const userInfo = requiredAuthenticate(headers)
+    const { staffProfileRole, role } = userInfo
+    if (!staffProfileRole) throw new HttpErr.Forbidden()
+    if (!roleNames.includes(staffProfileRole) && role !== 'admin') throw new HttpErr.Forbidden()
+    return userInfo
+}

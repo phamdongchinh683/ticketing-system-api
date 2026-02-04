@@ -11,4 +11,3 @@ export const OperationRouteResponse = z.object({
     stops: z.array(OperationRouteStopResponse),
 })
 export type OperationRouteResponse = z.infer<typeof OperationRouteResponse>
-

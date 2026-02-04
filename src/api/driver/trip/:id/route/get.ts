@@ -11,7 +11,10 @@ api.route({
     ...endpoint(__filename),
     handler: async request => {
         const userInfo = requireRoles(request.headers, [AuthUserRole.enum.driver])
-        return await bus.operation.route.getRouterByTripId({ driverId: userInfo.id, tripId: request.params.id })
+        return await bus.operation.route.getRouterByTripId({
+            driverId: userInfo.id,
+            tripId: request.params.id,
+        })
     },
 
     schema: {

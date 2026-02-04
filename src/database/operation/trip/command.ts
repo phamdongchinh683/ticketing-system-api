@@ -89,7 +89,14 @@ export async function getManyByDriverId(params: DriverTripQuery, userId: AuthUse
     return dal.operation.trip.query.findAllByDriverId(params, userId)
 }
 
-
-export async function updateStatus(params: { id: OperationTripId; status: OperationTripStatus; userId: AuthUserId } , trx?: Transaction<Database>) {
-    return (trx ?? db).updateTable('operation.trip').set({ status: params.status, driverId: params.userId }).where('id', '=', params.id).returningAll().executeTakeFirstOrThrow()
+export async function updateStatus(
+    params: { id: OperationTripId; status: OperationTripStatus; userId: AuthUserId },
+    trx?: Transaction<Database>
+) {
+    return (trx ?? db)
+        .updateTable('operation.trip')
+        .set({ status: params.status, driverId: params.userId })
+        .where('id', '=', params.id)
+        .returningAll()
+        .executeTakeFirstOrThrow()
 }

@@ -60,10 +60,7 @@ export async function getPayment(
         .executeTakeFirst()
 }
 
-export async function getPaymentByBookingId(
-    bookingId: BookingId,
-    trx?: Transaction<Database>
-) {
+export async function getPaymentByBookingId(bookingId: BookingId, trx?: Transaction<Database>) {
     return (trx ?? db)
         .selectFrom('payment.payment as pp')
         .where('pp.bookingId', '=', bookingId)

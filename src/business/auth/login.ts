@@ -1,5 +1,6 @@
 import { HttpErr } from '../../app/index.js'
 import { generateToken } from '../../app/jwt/handler.js'
+import { AuthUserStatus } from '../../database/auth/user/type.js'
 import { dal } from '../../database/index.js'
 import { AuthSignInBody } from '../../model/body/auth/index.js'
 import { utils } from '../../utils/index.js'
@@ -10,15 +11,16 @@ export async function byUsernameEmailOrPhone(params: AuthSignInBody) {
         email: params.email,
         phone: params.phone,
     })
-    if (!user) {
+    if (!user || user.status !== AuthUserStatus.enum.active) {
         throw new HttpErr.NotFound(
-            'User not found with the provided username, email or phone.',
+            user?.status === AuthUserStatus.enum.inactive ? 'USER_INACTIVE' : 'USER_NOT_FOUND',
             {
                 username: params.username,
                 email: params.email,
                 phone: params.phone,
+                status: user?.status,
             },
-            'USER_NOT_FOUND',
+            user?.status === AuthUserStatus.enum.inactive ? 'USER_INACTIVE' : 'USER_NOT_FOUND',
             404
         )
     }
