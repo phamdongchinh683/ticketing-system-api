@@ -6,6 +6,7 @@ import { DriverTripQuery, TripFilter } from '../../model/query/trip/index.js'
 import { PassengerTicketFilter } from '../../model/query/ticket/index.js'
 import { utils } from '../../utils/index.js'
 import { OperationTripScheduleId } from '../../database/operation/trip-schedule/type.js'
+import { OperationTripTableUpdate } from '../../database/operation/trip/table.js'
 
 export async function getTrips(query: TripFilter) {
     const trips = await dal.operation.trip.cmd.getManyByFilter(query)
@@ -66,5 +67,14 @@ export async function getTripByScheduleId(q: TripFilter, scheduleId: OperationTr
     return {
         trips: data,
         next: next,
+    }
+}
+
+export async function updateTrip(
+    ids: { scheduleId: OperationTripScheduleId; tripId: OperationTripId },
+    body: OperationTripTableUpdate
+) {
+    return {
+        trip: await dal.operation.trip.query.updateOneById(ids, body),
     }
 }

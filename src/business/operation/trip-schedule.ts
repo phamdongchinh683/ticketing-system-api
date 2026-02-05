@@ -2,6 +2,10 @@ import { TripScheduleFilter } from '../../model/query/trip-schedule/index.js'
 import { dal } from '../../database/index.js'
 import { OrganizationBusCompanyId } from '../../database/organization/bus_company/type.js'
 import { utils } from '../../utils/index.js'
+import { OperationTripScheduleId } from '../../database/operation/trip-schedule/type.js'
+import { TripScheduleBody, TripScheduleUpdateBody } from '../../model/body/trip-schedule/index.js'
+import { UserInfo } from '../../model/common.js'
+import { HttpErr } from '../../app/index.js'
 
 export async function getTripSchedules(query: TripScheduleFilter) {
     const tripSchedules = await dal.operation.tripSchedule.cmd.getTripSchedules(query)
@@ -24,5 +28,25 @@ export async function getTripSchedulesByCompanyId(
     return {
         trip: data,
         next: next,
+    }
+}
+
+export async function updateTripSchedule(params: {
+    id: OperationTripScheduleId
+    companyId: OrganizationBusCompanyId
+    body: TripScheduleUpdateBody
+}) {
+    return {
+        tripSchedule: await dal.operation.tripSchedule.cmd.updateOneById(params),
+    }
+}
+
+export async function createTripSchedule(params: { body: TripScheduleBody; user: UserInfo }) {
+    if (!params.user.companyId || params.user.companyId !== params.body.companyId) {
+        throw new HttpErr.Forbidden('You are not allowed to create trip schedule for this company')
+    }
+
+    return {
+        tripSchedule: await dal.operation.tripSchedule.cmd.upsertOne(params.body),
     }
 }

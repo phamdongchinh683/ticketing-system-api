@@ -8,17 +8,40 @@ import { OperationTripTableInsert } from './table.js'
 import { db } from '../../../datasource/db.js'
 import { utils } from '../../../utils/index.js'
 import { AuthUserId } from '../../auth/user/type.js'
+import _ from 'lodash'
+import { OperationTripScheduleId } from '../trip-schedule/type.js'
 export async function getManyByFilter(params: TripFilter) {
     return dal.operation.trip.query.findAllByFilter(params)
 }
 
 export async function createTrip(params: OperationTripTableInsert, trx: Transaction<Database>) {
-    return trx.insertInto('operation.trip').values(params).returning('id').executeTakeFirstOrThrow()
+    const data = _.omitBy(params, (v) => _.isNil(v)) as OperationTripTableInsert;
+    return trx.insertInto('operation.trip').values(data).returning('id').executeTakeFirstOrThrow()
+}
+
+export async function findByScheduleIdAndDepartureDate(
+    params: { scheduleId: OperationTripScheduleId; departureDate: Date },
+    trx?: Transaction<Database>
+) {
+    return (trx ?? db)
+        .selectFrom('operation.trip as t')
+        .where(eb => {
+            const cond = []
+            cond.push(eb('t.scheduleId', '=', params.scheduleId))
+            cond.push(eb('t.departureDate', '=', params.departureDate))
+            return eb.and(cond)
+        })
+        .select('id')
+        .executeTakeFirst()
 }
 
 export async function createTripTransaction(params: TripBody) {
     return db.transaction().execute(async trx => {
         const { scheduleId, departureDate } = params
+
+        const result = await findByScheduleIdAndDepartureDate({ scheduleId, departureDate }, trx)
+
+        if (result) return result
 
         const schedule = await dal.operation.tripSchedule.cmd.findByIdAndDate(
             { id: scheduleId, date: departureDate },
@@ -41,10 +64,6 @@ export async function createTripTransaction(params: TripBody) {
                 scheduleId: schedule.id,
                 departureDate: departureDate,
                 routeId: schedule.routeId,
-                vehicleId: (
-                    await dal.organization.vehicle.cmd.randomVehicle(schedule.companyId, trx)
-                ).id,
-                driverId: null,
                 status: OperationTripStatus.enum.scheduled,
             },
             trx
@@ -53,8 +72,6 @@ export async function createTripTransaction(params: TripBody) {
         const baseDate = utils.time.formatDateOnly(departureDate)
         const departureTime = utils.time.formatTimeOnly(schedule.departureTime)
         const date = `${baseDate}T${departureTime}`
-
-        console.log(date)
 
         await dal.operation.tripStop.cmd.createTripStopBulk(
             tripStopTemplates.map(t => ({

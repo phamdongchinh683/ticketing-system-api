@@ -2,7 +2,10 @@ import { api, endpoint, tags, bearer } from '../../../../app/api.js'
 import { bus } from '../../../../business/index.js'
 import { AuthUserRole } from '../../../../database/auth/user/type.js'
 import { requireRoles } from '../../../../app/jwt/handler.js'
-import { TripUpdateBody, TripUpdateResponse } from '../../../../model/body/trip/index.js'
+import {
+    TripUpdateStatusBody,
+    TripUpdateStatusResponse,
+} from '../../../../model/body/trip/index.js'
 import { TripIdParam } from '../../../../model/params/trip/index.js'
 
 const __filename = new URL('', import.meta.url).pathname
@@ -20,8 +23,8 @@ api.route({
 
     schema: {
         params: TripIdParam,
-        body: TripUpdateBody,
-        response: { 200: TripUpdateResponse },
+        body: TripUpdateStatusBody,
+        response: { 200: TripUpdateStatusResponse },
         tags: tags(__filename),
         security: bearer,
     },

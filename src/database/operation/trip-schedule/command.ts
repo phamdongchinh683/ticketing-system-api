@@ -4,6 +4,10 @@ import { Transaction } from 'kysely'
 import { Database } from '../../../datasource/type.js'
 import { TripScheduleFilter } from '../../../model/query/trip-schedule/index.js'
 import { dal } from '../../index.js'
+import { OperationTripScheduleTableInsert } from './table.js'
+import { HttpErr } from '../../../app/index.js'
+import { TripScheduleUpdateBody } from '../../../model/body/trip-schedule/index.js'
+import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
 
 export async function findByIdAndDate(
     params: {
@@ -23,10 +27,53 @@ export async function findByIdAndDate(
             cond.push(eb('status', '=', true))
             return eb.and(cond)
         })
-        .selectAll()
+        .select([
+            'id',
+            'routeId',
+            'companyId',
+            'departureTime',
+        ])
         .executeTakeFirstOrThrow()
 }
 
 export async function getTripSchedules(query: TripScheduleFilter) {
     return await dal.operation.tripSchedule.query.findAllByFilter(query)
+}
+
+export async function upsertOne(params: OperationTripScheduleTableInsert) {
+    const inserted = await db
+        .insertInto('operation.trip_schedule')
+        .values(params)
+        .onConflict(oc => oc.columns(['companyId', 'routeId']).doNothing())
+        .returningAll()
+        .executeTakeFirst()
+
+    if (!inserted) {
+        throw new HttpErr.UnprocessableEntity(
+            'Trip schedule already exists',
+            'TRIP_SCHEDULE_ALREADY_EXISTS'
+        )
+    }
+
+    return inserted
+}
+
+export async function updateOneById(params: {
+    id: OperationTripScheduleId
+    body: TripScheduleUpdateBody
+    companyId: OrganizationBusCompanyId
+}) {
+    const { id, body, companyId } = params
+
+    return db
+        .updateTable('operation.trip_schedule as ts')
+        .set(body)
+        .where(eb => {
+            const cond = []
+            cond.push(eb('ts.id', '=', id))
+            cond.push(eb('ts.companyId', '=', companyId))
+            return eb.and(cond)
+        })
+        .returning(['ts.id', 'ts.departureTime', 'ts.startDate', 'ts.endDate', 'ts.status'])
+        .executeTakeFirstOrThrow()
 }

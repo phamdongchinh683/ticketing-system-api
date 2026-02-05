@@ -1,10 +1,12 @@
 import { sql } from 'kysely'
 import { db } from '../../../datasource/db.js'
 import { DriverTripQuery, TripFilter } from '../../../model/query/trip/index.js'
-import { OperationTripStatus } from './type.js'
+import { OperationTripId, OperationTripStatus } from './type.js'
 import { AuthUserId } from '../../auth/user/type.js'
 import { utils } from '../../../utils/index.js'
 import { OperationTripScheduleId } from '../trip-schedule/type.js'
+import { OperationTripTableUpdate } from './table.js'
+import _ from 'lodash'
 
 export async function findAllByFilter(filter: TripFilter, scheduleId?: OperationTripScheduleId) {
     const { limit, next, from, to, date, orderByPrice, status } = filter
@@ -112,4 +114,47 @@ export async function findAllByDriverId(params: DriverTripQuery, userId: AuthUse
         .limit(limit + 1)
         .orderBy('ts.departureTime', orderBy)
         .execute()
+}
+
+export async function updateOneById(
+    params: { scheduleId: OperationTripScheduleId; tripId: OperationTripId },
+    body: OperationTripTableUpdate
+) {
+    const data = _.omitBy(body, v => _.isNil(v))
+
+    return db
+        .updateTable('operation.trip as t')
+        .set(data)
+        .where(eb => {
+            const cond = []
+            cond.push(eb('t.scheduleId', '=', params.scheduleId))
+            cond.push(eb('t.id', '=', params.tripId))
+            return eb.and(cond)
+        })
+        .returning([
+            't.id',
+            't.routeId',
+            't.vehicleId',
+            't.scheduleId',
+            't.driverId',
+            't.departureDate',
+            't.status',
+        ])
+        .executeTakeFirstOrThrow()
+}
+
+export async function findByScheduleIdAndDepartureDate(params: {
+    scheduleId: OperationTripScheduleId
+    departureDate: Date
+}) {
+    return db
+        .selectFrom('operation.trip as t')
+        .where(eb => {
+            const cond = []
+            cond.push(eb('t.scheduleId', '=', params.scheduleId))
+            cond.push(eb('t.departureDate', '=', params.departureDate))
+            return eb.and(cond)
+        })
+        .selectAll()
+        .executeTakeFirstOrThrow()
 }

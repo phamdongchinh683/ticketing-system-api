@@ -1,5 +1,19 @@
 import z from 'zod'
 import { OperationTripScheduleId } from '../../../database/operation/trip-schedule/type.js'
+import { OperationRouteId } from '../../../database/operation/route/type.js'
+import { OrganizationBusCompanyId } from '../../../database/organization/bus_company/type.js'
+
+export const TripScheduleItemResponse = z.object({
+    id: OperationTripScheduleId,
+    routeId: OperationRouteId,
+    companyId: OrganizationBusCompanyId,
+    departureTime: z.string(),
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+    status: z.boolean(),
+})
+
+export type TripScheduleItemResponse = z.infer<typeof TripScheduleItemResponse>
 
 export const TripScheduleResponse = z.object({
     trip: z.array(
@@ -12,6 +26,7 @@ export const TripScheduleResponse = z.object({
             fromLocation: z.string(),
             toLocation: z.string(),
             distanceKm: z.number(),
+            companyId: OrganizationBusCompanyId,
             durationMinutes: z.number(),
         })
     ),
@@ -19,3 +34,29 @@ export const TripScheduleResponse = z.object({
 })
 
 export type TripScheduleResponse = z.infer<typeof TripScheduleResponse>
+
+export const TripScheduleUpdateResponse = z.object({
+    tripSchedule: TripScheduleItemResponse.omit({ companyId: true, routeId: true }),
+})
+
+export type TripScheduleUpdateResponse = z.infer<typeof TripScheduleUpdateResponse>
+
+export const TripScheduleBody = z.object({
+    routeId: OperationRouteId,
+    companyId: OrganizationBusCompanyId,
+    departureTime: z.string(),
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+    status: z.boolean(),
+})
+
+export const TripScheduleUpdateBody = z.object({
+    departureTime: z.string().optional(),
+    startDate: z.coerce.date().optional(),
+    endDate: z.coerce.date().optional(),
+    status: z.boolean().optional(),
+})
+
+export type TripScheduleUpdateBody = z.infer<typeof TripScheduleUpdateBody>
+
+export type TripScheduleBody = z.infer<typeof TripScheduleBody>

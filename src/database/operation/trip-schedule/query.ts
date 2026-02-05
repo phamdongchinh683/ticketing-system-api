@@ -1,6 +1,10 @@
 import { db } from '../../../datasource/db.js'
+import { TripScheduleUpdateBody } from '../../../model/body/trip-schedule/index.js'
 import { TripScheduleFilter } from '../../../model/query/trip-schedule/index.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
+import { OperationTripScheduleId } from './type.js'
+import { OperationTripScheduleTableInsert } from './table.js'
+import { UserInfo } from '../../../model/common.js'
 
 export async function findAllByFilter(
     query: TripScheduleFilter,
@@ -20,6 +24,7 @@ export async function findAllByFilter(
             'bc.hotline',
             'r.fromLocation',
             'r.toLocation',
+            'ts.companyId',
             'r.distanceKm',
             'r.durationMinutes',
         ])
@@ -49,4 +54,12 @@ export async function findAllByFilter(
         .limit(limit + 1)
         .orderBy('ts.departureTime', orderBy)
         .execute()
+}
+
+export async function createOne(params: OperationTripScheduleTableInsert) {
+    return db
+        .insertInto('operation.trip_schedule')
+        .values(params)
+        .returningAll()
+        .executeTakeFirstOrThrow()
 }
