@@ -5,6 +5,7 @@ import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js
 import { Transaction } from 'kysely'
 import { Database } from '../../../datasource/type.js'
 import { db } from '../../../datasource/db.js'
+import { OperationStationId } from '../station/type.js'
 
 export async function findAllPriceByScheduleId(
     params: { routeId: OperationRouteId; companyId: OrganizationBusCompanyId },
@@ -21,4 +22,20 @@ export async function findAllPriceByScheduleId(
         })
         .selectAll()
         .execute()
+}
+
+export async function getPriceByCompanyId(
+    params: {
+        companyId: OrganizationBusCompanyId,
+        fromStationId: OperationStationId,
+        toStationId: OperationStationId
+    },
+    trx?: Transaction<Database>
+) {
+    const { companyId, fromStationId, toStationId } = params
+    return (trx ?? db)
+        .selectFrom('operation.trip_price_template as tpt')
+        .where(eb => eb.and([eb('tpt.companyId', '=', companyId), eb('tpt.fromStationId', '=', fromStationId), eb('tpt.toStationId', '=', toStationId)]))
+        .select(['tpt.price'])
+        .executeTakeFirst()
 }

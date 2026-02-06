@@ -8,6 +8,7 @@ import { Database } from '../../../datasource/type.js'
 import { OperationStationId } from '../../operation/station/type.js'
 import { HttpErr } from '../../../app/index.js'
 import { utils } from '../../../utils/index.js'
+import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
 
 export async function findAllCoupons(filter: CouponFilter) {
     return await dal.booking.coupon.query.findAll(filter)
@@ -39,19 +40,19 @@ export async function getCouponByCodeTransaction(
 
 export async function resultAmountOneWay(
     params: {
-        tripId: OperationTripId
+        companyId: OrganizationBusCompanyId
         fromStationId: OperationStationId
         toStationId: OperationStationId
     },
     trx: Transaction<Database>,
     couponId?: BookingCouponId
 ) {
-    const originalAmount = await dal.operation.tripPrice.cmd.getPriceByTrip(params, trx)
+    const originalAmount = await dal.operation.tripPriceTemplate.cmd.getPriceByCompanyId(params, trx)
+
     if (!originalAmount) {
         throw new HttpErr.NotFound(
             'Trip price not found for the selected segment',
             {
-                tripId: params.tripId,
                 fromStationId: params.fromStationId,
                 toStationId: params.toStationId,
             },

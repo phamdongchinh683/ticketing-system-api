@@ -5,11 +5,13 @@ import z from 'zod'
 import { OrganizationSeatId } from '../../../database/organization/seat/type.js'
 import { OperationStationId } from '../../../database/operation/station/type.js'
 import { OperationTripId } from '../../../database/operation/trip/type.js'
+import { OrganizationBusCompanyId } from '../../../database/organization/bus_company/type.js'
 
 export const BookingTicketRequest = z.object({
     tripId: OperationTripId,
     seatId: OrganizationSeatId,
     fromStationId: OperationStationId,
+    companyId: OrganizationBusCompanyId,
     toStationId: OperationStationId,
 })
 

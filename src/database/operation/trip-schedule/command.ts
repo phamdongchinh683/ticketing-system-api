@@ -8,6 +8,7 @@ import { OperationTripScheduleTableInsert } from './table.js'
 import { HttpErr } from '../../../app/index.js'
 import { TripScheduleUpdateBody } from '../../../model/body/trip-schedule/index.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
+import { OperationStationId } from '../station/type.js'
 
 export async function findByIdAndDate(
     params: {
@@ -27,12 +28,7 @@ export async function findByIdAndDate(
             cond.push(eb('status', '=', true))
             return eb.and(cond)
         })
-        .select([
-            'id',
-            'routeId',
-            'companyId',
-            'departureTime',
-        ])
+        .select(['id', 'routeId', 'companyId', 'departureTime'])
         .executeTakeFirstOrThrow()
 }
 
@@ -76,4 +72,20 @@ export async function updateOneById(params: {
         })
         .returning(['ts.id', 'ts.departureTime', 'ts.startDate', 'ts.endDate', 'ts.status'])
         .executeTakeFirstOrThrow()
+}
+
+export async function findAllPickupStop(id: OperationTripScheduleId) {
+    return await dal.operation.tripSchedule.query.getPickupStopsByScheduleId(id)
+}
+
+export async function findAllDropoffStop(
+    id: OperationTripScheduleId,
+    fromStationId: OperationStationId,
+    stopOrder: number
+) {
+    return await dal.operation.tripSchedule.query.getDropoffStopsWithPrice(
+        id,
+        fromStationId,
+        stopOrder
+    )
 }

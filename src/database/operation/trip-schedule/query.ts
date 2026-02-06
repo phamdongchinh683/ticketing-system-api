@@ -1,10 +1,9 @@
-import { db } from '../../../datasource/db.js'
-import { TripScheduleUpdateBody } from '../../../model/body/trip-schedule/index.js'
 import { TripScheduleFilter } from '../../../model/query/trip-schedule/index.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
-import { OperationTripScheduleId } from './type.js'
 import { OperationTripScheduleTableInsert } from './table.js'
-import { UserInfo } from '../../../model/common.js'
+import { db } from '../../../datasource/db.js'
+import { OperationStationId } from '../station/type.js'
+import { OperationTripScheduleId } from '../trip-schedule/type.js'
 
 export async function findAllByFilter(
     query: TripScheduleFilter,
@@ -22,6 +21,7 @@ export async function findAllByFilter(
             'bc.name',
             'bc.logoUrl',
             'bc.hotline',
+            'ts.routeId',
             'r.fromLocation',
             'r.toLocation',
             'ts.companyId',
@@ -62,4 +62,57 @@ export async function createOne(params: OperationTripScheduleTableInsert) {
         .values(params)
         .returningAll()
         .executeTakeFirstOrThrow()
+}
+
+export async function getPickupStopsByScheduleId(id: OperationTripScheduleId) {
+    return db
+        .selectFrom('operation.trip_stop_template as ts')
+        .innerJoin('operation.station as s', 'ts.stationId', 's.id')
+        .where(eb => eb.and([eb('ts.scheduleId', '=', id), eb('ts.allowPickup', '=', true)]))
+        .select([
+            'ts.stopOrder',
+            'ts.stationId',
+            's.address',
+            's.city',
+            'ts.stopOrder',
+            'ts.arrivalTime',
+            'ts.departureTime',
+        ])
+        .orderBy('ts.stopOrder')
+        .execute()
+}
+
+export async function getDropoffStopsWithPrice(
+    scheduleId: OperationTripScheduleId,
+    fromStationId: OperationStationId,
+    stopOrder: number
+) {
+    return db
+        .selectFrom('operation.trip_stop_template as ts')
+        .innerJoin('operation.station as s', 'ts.stationId', 's.id')
+        .innerJoin('operation.trip_price_template as tp', join =>
+            join
+                .onRef('tp.routeId', '=', 'ts.routeId')
+                .onRef('tp.companyId', '=', 'ts.companyId')
+                .on('tp.fromStationId', '=', fromStationId)
+                .onRef('tp.toStationId', '=', 'ts.stationId')
+        )
+        .where(eb =>
+            eb.and([
+                eb('ts.scheduleId', '=', scheduleId),
+                eb('ts.allowDropoff', '=', true),
+                eb('ts.stopOrder', '>', stopOrder),
+            ])
+        )
+        .select([
+            'ts.stationId as stopOrder',
+            's.address',
+            's.city',
+            'ts.stopOrder as stationId',
+            'ts.arrivalTime',
+            'ts.departureTime',
+            'tp.price',
+        ])
+        .orderBy('ts.stopOrder')
+        .execute()
 }

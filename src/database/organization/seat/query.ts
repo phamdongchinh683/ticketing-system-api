@@ -14,11 +14,16 @@ function getOccupiedSeatsSubQuery(params: TripSeatParam) {
     const { id, pickup, dropoff } = params
     return db
         .selectFrom('booking.seat_segment as ss')
-        .innerJoin('operation.trip_stop as ts', join =>
-            join.onRef('ts.tripId', '=', 'ss.tripId').onRef('ts.stationId', '=', 'ss.fromStationId')
+        .innerJoin('operation.trip as t', 't.id', 'ss.tripId')
+        .innerJoin('operation.trip_stop_template as ts', join =>
+            join
+                .onRef('ts.scheduleId', '=', 't.scheduleId')
+                .onRef('ts.stationId', '=', 'ss.fromStationId')
         )
-        .innerJoin('operation.trip_stop as fs', join =>
-            join.onRef('fs.stationId', '=', 'ss.toStationId').onRef('fs.tripId', '=', 'ss.tripId')
+        .innerJoin('operation.trip_stop_template as fs', join =>
+            join
+                .onRef('fs.scheduleId', '=', 't.scheduleId')
+                .onRef('fs.stationId', '=', 'ss.toStationId')
         )
         .where(eb => {
             const cond = []

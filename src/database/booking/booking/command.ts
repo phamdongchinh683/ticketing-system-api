@@ -85,9 +85,9 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
     if (outBound && returnBound) {
         return db.transaction().execute(async tx => {
             for (const trip of [outBound, returnBound]) {
-                const result = await dal.operation.tripPrice.cmd.getPriceByTrip(
+                const result = await dal.operation.tripPriceTemplate.cmd.getPriceByCompanyId(
                     {
-                        tripId: trip.tripId,
+                        companyId: trip.companyId,
                         fromStationId: trip.fromStationId,
                         toStationId: trip.toStationId,
                     },
@@ -97,7 +97,7 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
                     throw new HttpErr.NotFound(
                         'Trip price not found for the selected segment',
                         {
-                            tripId: trip.tripId,
+                            companyId: trip.companyId,
                             fromStationId: trip.fromStationId,
                             toStationId: trip.toStationId,
                         },

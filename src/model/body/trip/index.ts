@@ -11,6 +11,7 @@ import { BookingTicketId } from '../../../database/booking/ticket/type.js'
 import { BookingStatus } from '../../../database/booking/booking/type.js'
 import { OperationRouteId } from '../../../database/operation/route/type.js'
 import { AuthUserId } from '../../../database/auth/user/type.js'
+import { OrganizationBusCompanyId } from '../../../database/organization/bus_company/type.js'
 
 export const TripItem = z.object({
     id: OperationTripId,
@@ -96,6 +97,7 @@ export type TripBody = z.infer<typeof TripBody>
 
 export const TripPrepareResponse = z.object({
     id: OperationTripId,
+    companyId: OrganizationBusCompanyId,
 })
 
 export type TripPrepareResponse = z.infer<typeof TripPrepareResponse>

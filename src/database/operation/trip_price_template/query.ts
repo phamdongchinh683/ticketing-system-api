@@ -1,4 +1,6 @@
+import { Transaction } from 'kysely'
 import { db } from '../../../datasource/db.js'
+import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
 import { OperationStationId } from '../station/type.js'
 import { OperationTripId } from '../trip/type.js'
 

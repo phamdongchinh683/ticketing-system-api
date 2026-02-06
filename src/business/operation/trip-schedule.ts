@@ -6,6 +6,7 @@ import { OperationTripScheduleId } from '../../database/operation/trip-schedule/
 import { TripScheduleBody, TripScheduleUpdateBody } from '../../model/body/trip-schedule/index.js'
 import { UserInfo } from '../../model/common.js'
 import { HttpErr } from '../../app/index.js'
+import { OperationStationId } from '../../database/operation/station/type.js'
 
 export async function getTripSchedules(query: TripScheduleFilter) {
     const tripSchedules = await dal.operation.tripSchedule.cmd.getTripSchedules(query)
@@ -48,5 +49,25 @@ export async function createTripSchedule(params: { body: TripScheduleBody; user:
 
     return {
         tripSchedule: await dal.operation.tripSchedule.cmd.upsertOne(params.body),
+    }
+}
+
+export async function getPickupStops(id: OperationTripScheduleId) {
+    return {
+        tripStops: await dal.operation.tripSchedule.cmd.findAllPickupStop(id),
+    }
+}
+
+export async function getDropoffStops(
+    id: OperationTripScheduleId,
+    fromStationId: OperationStationId,
+    stopOrder: number
+) {
+    return {
+        tripStops: await dal.operation.tripSchedule.cmd.findAllDropoffStop(
+            id,
+            fromStationId,
+            stopOrder
+        ),
     }
 }
