@@ -32,6 +32,14 @@ export async function findByIdAndDate(
         .executeTakeFirstOrThrow()
 }
 
+export async function findById(id: OperationTripScheduleId, trx?: Transaction<Database>) {
+    return (trx ?? db)
+        .selectFrom('operation.trip_schedule')
+        .where('id', '=', id)
+        .select(['id', 'routeId', 'companyId', 'departureTime'])
+        .executeTakeFirstOrThrow()
+}
+
 export async function getTripSchedules(query: TripScheduleFilter) {
     return await dal.operation.tripSchedule.query.findAllByFilter(query)
 }

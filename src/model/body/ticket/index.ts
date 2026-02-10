@@ -48,7 +48,6 @@ export const TicketResponse = z.object({
         type: OrganizationVehicleType.nullable(),
         fromLocation: z.string().nullable(),
         toLocation: z.string().nullable(),
-        currency: z.string().nullable(),
         departureTime: z.string().nullable(),
     }),
 })

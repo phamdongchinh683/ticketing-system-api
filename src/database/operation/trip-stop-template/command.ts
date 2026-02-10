@@ -4,6 +4,8 @@ import { Database } from '../../../datasource/type.js'
 import { db } from '../../../datasource/db.js'
 import { OperationRouteId } from '../route/type.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
+import { OperationTripStopTemplateTableInsert } from './table.js'
+import _ from 'lodash'
 
 export async function findAllByScheduleId(
     params: {
@@ -25,4 +27,17 @@ export async function findAllByScheduleId(
         })
         .selectAll()
         .execute()
+}
+
+export async function createOne(
+    params: OperationTripStopTemplateTableInsert,
+    trx?: Transaction<Database>
+) {
+    const data = _.omitBy(params, v => _.isNil(v)) as OperationTripStopTemplateTableInsert
+
+    return (trx ?? db)
+        .insertInto('operation.trip_stop_template')
+        .values(data)
+        .returningAll()
+        .executeTakeFirstOrThrow()
 }

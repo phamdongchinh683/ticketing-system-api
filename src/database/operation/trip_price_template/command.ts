@@ -26,8 +26,8 @@ export async function findAllPriceByScheduleId(
 
 export async function getPriceByCompanyId(
     params: {
-        companyId: OrganizationBusCompanyId,
-        fromStationId: OperationStationId,
+        companyId: OrganizationBusCompanyId
+        fromStationId: OperationStationId
         toStationId: OperationStationId
     },
     trx?: Transaction<Database>
@@ -35,7 +35,13 @@ export async function getPriceByCompanyId(
     const { companyId, fromStationId, toStationId } = params
     return (trx ?? db)
         .selectFrom('operation.trip_price_template as tpt')
-        .where(eb => eb.and([eb('tpt.companyId', '=', companyId), eb('tpt.fromStationId', '=', fromStationId), eb('tpt.toStationId', '=', toStationId)]))
+        .where(eb =>
+            eb.and([
+                eb('tpt.companyId', '=', companyId),
+                eb('tpt.fromStationId', '=', fromStationId),
+                eb('tpt.toStationId', '=', toStationId),
+            ])
+        )
         .select(['tpt.price'])
         .executeTakeFirst()
 }

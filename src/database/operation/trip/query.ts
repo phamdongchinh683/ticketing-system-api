@@ -9,11 +9,10 @@ import { OperationTripTableUpdate } from './table.js'
 import _ from 'lodash'
 
 export async function findAllByFilter(filter: TripFilter, scheduleId?: OperationTripScheduleId) {
-    const { limit, next, from, to, date, orderByPrice, status } = filter
+    const { limit, next, from, to, date, orderBy, status } = filter
     return db
         .selectFrom('operation.trip as t')
         .innerJoin('operation.route as r', 't.routeId', 'r.id')
-        .innerJoin('operation.trip_price as tp', 'tp.tripId', 't.id')
         .innerJoin('organization.vehicle as v', 'v.id', 't.vehicleId')
         .innerJoin('organization.bus_company as bc', 'bc.id', 'v.companyId')
         .where(eb => {
@@ -54,9 +53,7 @@ export async function findAllByFilter(filter: TripFilter, scheduleId?: Operation
             'r.toLocation',
             'r.distanceKm',
             'r.durationMinutes',
-            'tp.currency',
             't.status',
-            sql<number>`min(${sql.ref('tp.price')})`.as('price'),
         ])
         .groupBy([
             't.id',
@@ -69,9 +66,8 @@ export async function findAllByFilter(filter: TripFilter, scheduleId?: Operation
             'r.toLocation',
             'r.distanceKm',
             'r.durationMinutes',
-            'tp.currency',
         ])
-        .orderBy(sql<number>`min(${sql.ref('tp.price')})`, orderByPrice)
+        .orderBy('t.id', orderBy)
         .limit(limit + 1)
         .execute()
 }

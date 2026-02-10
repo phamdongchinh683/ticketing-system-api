@@ -13,10 +13,10 @@ export interface OperationTripStopTemplateTable extends Timestamps {
     companyId: OrganizationBusCompanyId
     routeId: OperationRouteId
     stopOrder: number
-    arrivalTime: Date
-    departureTime: Date
-    arrivalOffsetMin: number
-    departureOffsetMin: number
+    arrivalTime: Date | null
+    departureTime: Date | null
+    arrivalOffsetMin: number | null
+    departureOffsetMin: number | null
     allowPickup: boolean
     allowDropoff: boolean
 }

@@ -5,6 +5,10 @@ import { HttpErr } from '../../app/index.js'
 import { CouponResponse } from '../../model/body/coupon/index.js'
 import { BookingCouponId, BookingDiscountType } from '../../database/booking/coupon/type.js'
 import { OperationTripId } from '../../database/operation/trip/type.js'
+import { OrganizationBusCompanyId } from '../../database/organization/bus_company/type.js'
+import { OperationRouteId } from '../../database/operation/route/type.js'
+import { OperationTripScheduleId } from '../../database/operation/trip-schedule/type.js'
+import { OperationStationId } from '../../database/operation/station/type.js'
 
 export async function getCouponByCode(params: CouponCheckCodeQuery) {
     const coupon = await dal.booking.coupon.cmd.getCouponByCode(params)
@@ -88,13 +92,34 @@ export function applyCoupon(coupon: CouponResponse, orderTotal: number) {
     }
 }
 
-export async function resultAmountOneWay(tripId: OperationTripId, couponId?: BookingCouponId) {
-    const originalAmount = await dal.operation.tripPrice.cmd.findOneByTripId(tripId)
+export async function resultAmountOneWay(
+    params: {
+        companyId: OrganizationBusCompanyId
+        scheduleId: OperationTripScheduleId
+        routeId: OperationRouteId
+        fromStationId: OperationStationId
+        toStationId: OperationStationId
+    },
+    couponId?: BookingCouponId
+) {
+    const originalAmount = await dal.operation.tripPriceTemplate.cmd.getPriceByCompanyId({
+        companyId: params.companyId,
+        fromStationId: params.fromStationId,
+        toStationId: params.toStationId,
+    })
+
+    if (!originalAmount) {
+        throw new HttpErr.NotFound('Trip price not found for the selected segment', {
+            companyId: params.companyId,
+            fromStationId: params.fromStationId,
+            toStationId: params.toStationId,
+        })
+    }
 
     if (couponId) {
         const coupon = await dal.booking.coupon.cmd.getCouponByCode({
             id: couponId,
-            orderTotal: originalAmount.price,
+            orderTotal: originalAmount?.price,
         })
         if (coupon) {
             validateCoupon(coupon, originalAmount.price)

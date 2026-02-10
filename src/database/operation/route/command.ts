@@ -15,15 +15,15 @@ export async function getRouterByDriverIdAndTripId(
     return (trx ?? db)
         .selectFrom('operation.route as r')
         .innerJoin('operation.trip as t', 't.routeId', 'r.id')
-        .innerJoin('operation.trip_stop as ts', 'ts.tripId', 't.id')
-        .innerJoin('operation.station as s', 's.id', 'ts.stationId')
+        .innerJoin('operation.trip_stop_template as tst', 'tst.routeId', 'r.id')
+        .innerJoin('operation.station as s', 's.id', 'tst.stationId')
         .where(eb => {
             const cond = []
             cond.push(eb('t.id', '=', tripId))
             cond.push(eb('t.driverId', '=', driverId))
             return eb.and(cond)
         })
-        .select(['s.address', 's.city', 'ts.stopOrder'])
-        .orderBy('ts.stopOrder')
+        .select(['s.address', 's.city', 'tst.stopOrder'])
+        .orderBy('tst.stopOrder')
         .execute()
 }

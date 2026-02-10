@@ -50,9 +50,9 @@ export async function findById(id: BookingTicketId, userId: AuthUserId) {
         .leftJoin('operation.route as route', 'route.id', 'trip.routeId')
         .leftJoin('operation.station as fs', 'fs.id', 't.fromStationId')
         .leftJoin('operation.station as ts', 'ts.id', 't.toStationId')
-        .leftJoin('operation.trip_price as tp', 'tp.tripId', 'trip.id')
         .leftJoin('organization.vehicle as v', 'v.id', 'trip.vehicleId')
         .leftJoin('operation.trip_schedule as tsp', 'tsp.id', 'trip.scheduleId')
+
         .where(eb => {
             const cond = []
             cond.push(eb('t.id', '=', id))
@@ -72,7 +72,6 @@ export async function findById(id: BookingTicketId, userId: AuthUserId) {
             'v.type',
             'route.fromLocation',
             'route.toLocation',
-            'tp.currency',
             'tsp.departureTime',
             'trip.departureDate',
         ])

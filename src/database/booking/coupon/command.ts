@@ -7,7 +7,6 @@ import { Transaction } from 'kysely'
 import { Database } from '../../../datasource/type.js'
 import { OperationStationId } from '../../operation/station/type.js'
 import { HttpErr } from '../../../app/index.js'
-import { utils } from '../../../utils/index.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
 
 export async function findAllCoupons(filter: CouponFilter) {
@@ -47,7 +46,10 @@ export async function resultAmountOneWay(
     trx: Transaction<Database>,
     couponId?: BookingCouponId
 ) {
-    const originalAmount = await dal.operation.tripPriceTemplate.cmd.getPriceByCompanyId(params, trx)
+    const originalAmount = await dal.operation.tripPriceTemplate.cmd.getPriceByCompanyId(
+        params,
+        trx
+    )
 
     if (!originalAmount) {
         throw new HttpErr.NotFound(

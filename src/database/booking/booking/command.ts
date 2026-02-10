@@ -18,18 +18,6 @@ export async function createOneWayBooking(params: BookingRequest, userId: AuthUs
         const { originalAmount, discountAmount, totalAmount } =
             await dal.booking.coupon.cmd.resultAmountOneWay(outBound, tx, couponId)
 
-        const seatConflict = await dal.booking.seatSegment.cmd.lockSeatSegmentsTransaction(
-            outBound,
-            tx
-        )
-
-        if (seatConflict) {
-            throw new HttpErr.UnprocessableEntity(
-                'Seat is already reserved for the selected segment',
-                'SEAT_CONFLICT'
-            )
-        }
-
         const booking = await createBookingTransaction(
             {
                 userId,
@@ -105,28 +93,6 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
                     )
                 }
                 total += result.price
-            }
-
-            const outBoundConflict = await dal.booking.seatSegment.cmd.lockSeatSegmentsTransaction(
-                outBound,
-                tx
-            )
-
-            if (outBoundConflict) {
-                throw new HttpErr.UnprocessableEntity(
-                    'Outbound seat is already reserved for the selected segment',
-                    'SEAT_CONFLICT_OUTBOUND'
-                )
-            }
-
-            const returnBoundConflict =
-                await dal.booking.seatSegment.cmd.lockSeatSegmentsTransaction(returnBound, tx)
-
-            if (returnBoundConflict) {
-                throw new HttpErr.UnprocessableEntity(
-                    'Return seat is already reserved for the selected segment',
-                    'SEAT_CONFLICT_RETURN'
-                )
             }
 
             if (couponId) {

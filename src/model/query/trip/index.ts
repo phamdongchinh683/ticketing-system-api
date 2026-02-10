@@ -11,7 +11,7 @@ export const TripFilter = z.object({
     status: OperationTripStatus.optional(),
     to: z.string().optional(),
     date: z.coerce.date().optional(),
-    orderByPrice: OrderBy,
+    orderBy: OrderBy,
 })
 
 export type TripFilter = z.infer<typeof TripFilter>
