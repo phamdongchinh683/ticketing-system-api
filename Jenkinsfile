@@ -49,6 +49,9 @@ pipeline {
             steps {
                  sh '''
                     if docker ps --filter "publish=5432" | grep -q postgres; then
+                        if docker ps -a --filter "name=^/api$" | grep -q api; then
+                            docker rm -f api
+                        fi
                         docker-compose -f docker-compose.prod.yml pull api
                         docker-compose -f docker-compose.prod.yml up -d api
                     else
