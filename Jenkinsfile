@@ -37,12 +37,23 @@ pipeline {
             }
         }
 
+        stage("Test Migrate") {
+            steps {
+                sh '''
+                    docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
+                '''
+            }
+        }
+
         stage("Deploy") {
             steps {
                  sh '''
-                  docker-compose -f docker-compose.prod.yml pull api
-            docker-compose -f docker-compose.prod.yml up -d api
-            docker-compose -f docker-compose.prod.yml exec -T api yarn migrate
+                    if docker ps --filter "publish=5432" | grep -q postgres; then
+                        docker-compose -f docker-compose.prod.yml pull api
+                        docker-compose -f docker-compose.prod.yml up -d api
+                    else
+                        docker-compose -f docker-compose.prod.yml up -d
+                    fi
                  '''
             }
         }
