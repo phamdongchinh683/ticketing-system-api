@@ -63,7 +63,6 @@ const DOWN = sql`
 	DROP TRIGGER IF EXISTS trip_schedules_set_timestamps ON operation.trip_schedule;
 
 	DROP TABLE IF EXISTS operation.trip_stop_template;
-	DROP TABLE IF EXISTS operation.trip_stop_template;
 	DROP TABLE IF EXISTS operation.trip_schedule;
 `
 
