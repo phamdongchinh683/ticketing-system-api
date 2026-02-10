@@ -26,11 +26,9 @@ api.route({
 
     schema: {
         params: TripScheduleIdParam,
-        response: { 200: TripStopTemplateResponse,
+        response: { 200: TripStopTemplateResponse },
         tags: tags(__filename),
         security: bearer,
     },
-}
-}
-)
+})
 

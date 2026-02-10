@@ -16,6 +16,8 @@ export async function getStoppingPointByScheduleId(id: OperationTripScheduleId) 
             'ts.stopOrder',
             'ts.arrivalTime',
             'ts.departureTime',
+            'ts.arrivalOffsetMin',
+            'ts.departureOffsetMin',
             'ts.allowPickup',
             'ts.allowDropoff',
             'ts.scheduleId',
