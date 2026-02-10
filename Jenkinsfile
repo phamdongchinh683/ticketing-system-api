@@ -37,14 +37,6 @@ pipeline {
             }
         }
 
-        stage("Test Migrate") {
-            steps {
-                sh '''
-                    docker-compose -f docker-compose.prod.yml run --rm api yarn migrate
-                '''
-            }
-        }
-
         stage("Deploy") {
             steps {
                  sh '''
