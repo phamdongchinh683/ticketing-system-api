@@ -8,25 +8,26 @@ export async function insertOne(params: AuthUserTableInsert) {
 export function getOne(params: { username?: string; email?: string; phone?: string }) {
     const { username, email, phone } = params
     return db
-        .selectFrom('auth.user')
-        .leftJoin('auth.staff_profile', 'auth.user.id', 'auth.staff_profile.userId')
-        .leftJoin('auth.staff_detail', 'auth.user.id', 'auth.staff_detail.userId')
+        .selectFrom('auth.user as u')
+        .leftJoin('auth.staff_profile', 'u.id', 'auth.staff_profile.userId')
+        .leftJoin('auth.staff_detail', 'u.id', 'auth.staff_detail.userId')
         .select([
-            'auth.user.username',
-            'auth.user.fullName',
-            'auth.user.password',
-            'auth.user.email',
-            'auth.user.phone',
-            'auth.user.role',
-            'auth.user.status',
+            'u.id',
+            'u.username',
+            'u.fullName',
+            'u.password',
+            'u.email',
+            'u.phone',
+            'u.role',
+            'u.status',
             'auth.staff_detail.companyId',
             'auth.staff_profile.role as staffProfileRole',
         ])
         .where(eb => {
             const cond = []
-            if (username) cond.push(eb('username', '=', username))
-            if (email) cond.push(eb('email', '=', email))
-            if (phone) cond.push(eb('phone', '=', phone))
+            if (username) cond.push(eb('u.username', '=', username))
+            if (email) cond.push(eb('u.email', '=', email))
+            if (phone) cond.push(eb('u.phone', '=', phone))
             return eb.and(cond)
         })
         .executeTakeFirst()

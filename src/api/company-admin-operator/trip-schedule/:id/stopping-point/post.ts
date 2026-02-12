@@ -35,7 +35,7 @@ api.route({
     },
     schema: {
         params: TripScheduleIdParam,
-        body: TripStopTemplateBody.omit({ companyId: true ,}),
+        body: TripStopTemplateBody.omit({ companyId: true }),
         response: { 200: TripStopTemplateUpdateResponse },
         tags: tags(__filename),
         security: bearer,

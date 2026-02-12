@@ -1,5 +1,5 @@
 import z from 'zod'
-import { AuthUserRole, AuthUserStatus } from '../database/auth/user/type.js'
+import { AuthUserId, AuthUserRole, AuthUserStatus } from '../database/auth/user/type.js'
 import { AuthStaffProfileRole } from '../database/auth/staff_profile/type.js'
 import { OrganizationBusCompanyId } from '../database/organization/bus_company/type.js'
 
@@ -16,6 +16,7 @@ export const ContactInfo = z.object({
 export type ContactInfo = z.infer<typeof ContactInfo>
 
 export const UserInfo = z.object({
+    id: AuthUserId,
     fullName: z.string(),
     email: Email,
     phone: Phone,

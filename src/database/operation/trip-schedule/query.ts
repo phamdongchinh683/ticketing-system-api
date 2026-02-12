@@ -75,8 +75,6 @@ export async function getPickupStopsByScheduleId(id: OperationTripScheduleId) {
             's.address',
             's.city',
             'ts.stopOrder',
-            'ts.arrivalTime',
-            'ts.departureTime',
         ])
         .orderBy('ts.stopOrder')
         .execute()
@@ -105,12 +103,10 @@ export async function getDropoffStopsWithPrice(
             ])
         )
         .select([
-            'ts.stationId as stopOrder',
+            'ts.stationId',
             's.address',
             's.city',
-            'ts.stopOrder as stationId',
-            'ts.arrivalTime',
-            'ts.departureTime',
+            'ts.stopOrder',
             'tp.price',
         ])
         .orderBy('ts.stopOrder')

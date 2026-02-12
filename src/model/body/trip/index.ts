@@ -52,9 +52,7 @@ export const TripStopResponse = z.object({
             address: z.string(),
             city: z.string(),
             stationId: OperationStationId,
-            arrivalTime: z.date().nullable(),
             stopOrder: z.number(),
-            departureTime: z.date().nullable(),
             price: z.number(),
         })
     ),
@@ -69,8 +67,6 @@ export const TripStopPickupResponse = z.object({
             city: z.string(),
             stopOrder: z.number(),
             stationId: OperationStationId,
-            arrivalTime: z.date().nullable(),
-            departureTime: z.date().nullable(),
         })
     ),
 })

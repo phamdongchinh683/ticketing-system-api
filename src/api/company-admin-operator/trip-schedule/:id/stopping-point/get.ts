@@ -31,4 +31,3 @@ api.route({
         security: bearer,
     },
 })
-

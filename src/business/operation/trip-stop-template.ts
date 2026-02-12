@@ -13,20 +13,25 @@ export async function getStoppingPoints(id: OperationTripScheduleId) {
     }
 }
 
-export async function updateStoppingPointById(id: OperationTripStopTemplateId, body: OperationTripStopTemplateTableUpdate) {
+export async function updateStoppingPointById(
+    id: OperationTripStopTemplateId,
+    body: OperationTripStopTemplateTableUpdate
+) {
     return {
-        stoppingPoint: await dal.operation.tripStopTemplate.query.updateOneById(id, body)
+        stoppingPoint: await dal.operation.tripStopTemplate.query.updateOneById(id, body),
     }
-
 }
 
-export async function createStoppingPoint(params: { body: OperationTripStopTemplateTableInsert , user: UserInfo }) {
+export async function createStoppingPoint(params: {
+    body: OperationTripStopTemplateTableInsert
+    user: UserInfo
+}) {
     const data = {
         ...params.body,
-        companyId: params.user.companyId 
+        companyId: params.user.companyId,
     } as OperationTripStopTemplateTableInsert
 
     return {
-        stoppingPoint: await dal.operation.tripStopTemplate.cmd.createOne(data)
+        stoppingPoint: await dal.operation.tripStopTemplate.cmd.createOne(data),
     }
 }

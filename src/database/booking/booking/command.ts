@@ -15,12 +15,24 @@ export async function createOneWayBooking(params: BookingRequest, userId: AuthUs
     const { couponId, outBound } = params
 
     return db.transaction().execute(async tx => {
+        const seatConflict = await dal.booking.seatSegment.cmd.checkSeatConflict(
+            outBound,
+            tx
+        )
+
+        if (seatConflict) {
+            throw new HttpErr.UnprocessableEntity(
+                'Seat is already reserved for the selected segment',
+                'SEAT_CONFLICT'
+            )
+        }
+
         const { originalAmount, discountAmount, totalAmount } =
             await dal.booking.coupon.cmd.resultAmountOneWay(outBound, tx, couponId)
 
         const booking = await createBookingTransaction(
             {
-                userId,
+                userId: userId,
                 couponId: couponId ?? null,
                 code: utils.random.generateRandomNumber(20).toString(),
                 bookingType: BookingType.enum.one_way,
@@ -72,6 +84,29 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
 
     if (outBound && returnBound) {
         return db.transaction().execute(async tx => {
+
+            const seatConflict = await dal.booking.seatSegment.cmd.checkSeatConflict(
+                outBound,
+                tx
+            )
+            if (seatConflict) {
+                throw new HttpErr.UnprocessableEntity(
+                    'Seat is already reserved for the selected segment',
+                    'SEAT_CONFLICT_OUTBOUND'
+                )
+            }
+            
+            const seatConflictReturn = await dal.booking.seatSegment.cmd.checkSeatConflict(
+                returnBound,
+                tx
+            )
+            if (seatConflictReturn) {
+                throw new HttpErr.UnprocessableEntity(
+                    'Seat is already reserved for the selected segment',
+                    'SEAT_CONFLICT_RETURNBOUND'
+                )
+            }
+
             for (const trip of [outBound, returnBound]) {
                 const result = await dal.operation.tripPriceTemplate.cmd.getPriceByCompanyId(
                     {
@@ -94,6 +129,8 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
                 }
                 total += result.price
             }
+
+
 
             if (couponId) {
                 const { originalAmount, discountAmount, totalAmount } =
@@ -139,6 +176,8 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
                 ],
                 tx
             )
+
+            console.log(ticket)
 
             await dal.booking.seatSegment.cmd.insertManySeatSegmentsTransaction(
                 [

@@ -7,16 +7,12 @@ import { OperationTripStopTemplateId } from '../../../database/operation/trip-st
 
 export const TripStopTemplateBody = z.object({
     companyId: OrganizationBusCompanyId,
-    arrivalOffsetMin: z.number().nullable(),
-    departureOffsetMin: z.number().nullable(),
     scheduleId: OperationTripScheduleId,
     allowPickup: z.boolean(),
     allowDropoff: z.boolean(),
     routeId: OperationRouteId,
     stopOrder: z.number(),
     stationId: OperationStationId,
-    arrivalTime: z.date().nullable(),
-    departureTime: z.date().nullable(),
 })
 
 export type TripStopTemplateBody = z.infer<typeof TripStopTemplateBody>
@@ -26,7 +22,7 @@ export const TripStopTemplateResponse = z.object({
         TripStopTemplateBody.extend({
             address: z.string(),
             city: z.string(),
-        }).omit({ companyId: true , routeId: true })
+        }).omit({ companyId: true, routeId: true })
     ),
 })
 
