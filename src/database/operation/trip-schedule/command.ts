@@ -97,3 +97,11 @@ export async function findAllDropoffStop(
         stopOrder
     )
 }
+
+export async function deleteOneById(id: OperationTripScheduleId, trx?: Transaction<Database>) {
+    return (trx ?? db)
+        .deleteFrom('operation.trip_schedule')
+        .where('id', '=', id)
+        .returningAll()
+        .executeTakeFirstOrThrow()
+}

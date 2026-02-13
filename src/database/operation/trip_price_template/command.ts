@@ -1,26 +1,32 @@
-import { dal } from '../../index.js'
-import { OperationTripScheduleId } from '../trip-schedule/type.js'
-import { OperationRouteId } from '../route/type.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
 import { Transaction } from 'kysely'
 import { Database } from '../../../datasource/type.js'
 import { db } from '../../../datasource/db.js'
 import { OperationStationId } from '../station/type.js'
+import { OperationTripPriceTemplateTableInsert } from './table.js'
+import _ from 'lodash'
+import { TripPriceTemplateFilter } from '../../../model/query/trip-price-template/index.js'
+import { OperationTripPriceTemplateId } from './type.js'
 
-export async function findAllPriceByScheduleId(
-    params: { routeId: OperationRouteId; companyId: OrganizationBusCompanyId },
-    trx?: Transaction<Database>
-) {
-    const { routeId, companyId } = params
-    return (trx ?? db)
+export async function findAllPriceByScheduleId(params: {
+    q: TripPriceTemplateFilter
+    companyId: OrganizationBusCompanyId
+}) {
+    const { q, companyId } = params
+    return db
         .selectFrom('operation.trip_price_template as tpt')
         .where(eb => {
             const cond = []
             cond.push(eb('tpt.companyId', '=', companyId))
-            cond.push(eb('tpt.routeId', '=', routeId))
+
+            if (q.next) {
+                cond.push(eb('tpt.id', '>', q.next))
+            }
             return eb.and(cond)
         })
         .selectAll()
+        .limit(q.limit + 1)
+        .orderBy('tpt.id')
         .execute()
 }
 
@@ -44,4 +50,27 @@ export async function getPriceByCompanyId(
         )
         .select(['tpt.price'])
         .executeTakeFirst()
+}
+
+export async function createOne(
+    params: OperationTripPriceTemplateTableInsert,
+    trx?: Transaction<Database>
+) {
+    const data = _.omitBy(params, v => _.isNil(v)) as OperationTripPriceTemplateTableInsert
+    return (trx ?? db)
+        .insertInto('operation.trip_price_template')
+        .values(data)
+        .onConflict(oc =>
+            oc.columns(['companyId', 'routeId', 'fromStationId', 'toStationId']).doUpdateSet(data)
+        )
+        .returningAll()
+        .executeTakeFirstOrThrow()
+}
+
+export async function deleteOneById(id: OperationTripPriceTemplateId, trx?: Transaction<Database>) {
+    return (trx ?? db)
+        .deleteFrom('operation.trip_price_template')
+        .where('id', '=', id)
+        .returningAll()
+        .executeTakeFirstOrThrow()
 }

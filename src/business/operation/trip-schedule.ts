@@ -71,3 +71,9 @@ export async function getDropoffStops(
         ),
     }
 }
+
+export async function deleteTripSchedule(params: { id: OperationTripScheduleId }) {
+    return {
+        tripSchedule: await dal.operation.tripSchedule.cmd.deleteOneById(params.id),
+    }
+}

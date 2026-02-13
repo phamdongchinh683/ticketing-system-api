@@ -69,13 +69,7 @@ export async function getPickupStopsByScheduleId(id: OperationTripScheduleId) {
         .selectFrom('operation.trip_stop_template as ts')
         .innerJoin('operation.station as s', 'ts.stationId', 's.id')
         .where(eb => eb.and([eb('ts.scheduleId', '=', id), eb('ts.allowPickup', '=', true)]))
-        .select([
-            'ts.stopOrder',
-            'ts.stationId',
-            's.address',
-            's.city',
-            'ts.stopOrder',
-        ])
+        .select(['ts.stopOrder', 'ts.stationId', 's.address', 's.city', 'ts.stopOrder'])
         .orderBy('ts.stopOrder')
         .execute()
 }
@@ -102,13 +96,7 @@ export async function getDropoffStopsWithPrice(
                 eb('ts.stopOrder', '>', stopOrder),
             ])
         )
-        .select([
-            'ts.stationId',
-            's.address',
-            's.city',
-            'ts.stopOrder',
-            'tp.price',
-        ])
+        .select(['ts.stationId', 's.address', 's.city', 'ts.stopOrder', 'tp.price'])
         .orderBy('ts.stopOrder')
         .execute()
 }

@@ -30,6 +30,7 @@ export async function byUsernameEmailOrPhone(params: AuthSignInBody) {
         throw new HttpErr.Unauthorized('Incorrect password.')
     }
 
+    console.log('user', user)
     return {
         message: 'OK',
         token: generateToken(user),
