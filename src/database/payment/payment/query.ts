@@ -70,7 +70,11 @@ export async function getPaymentByBookingId(bookingId: BookingId, trx?: Transact
         .executeTakeFirst()
 }
 
-export async function getPayments(params: PaymentFilter, companyId: OrganizationBusCompanyId, trx?: Transaction<Database>) {
+export async function getPayments(
+    params: PaymentFilter,
+    companyId: OrganizationBusCompanyId,
+    trx?: Transaction<Database>
+) {
     return (trx ?? db)
         .selectFrom('payment.payment as pp')
         .innerJoin('booking.booking as b', 'b.id', 'pp.bookingId')

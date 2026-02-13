@@ -30,3 +30,9 @@ export const CouponApplyResponse = z.object({
 })
 
 export type CouponApplyResponse = z.infer<typeof CouponApplyResponse>
+
+export const CouponCreateResponse = z.object({
+    coupon: CouponResponse,
+})
+
+export type CouponCreateResponse = z.infer<typeof CouponCreateResponse>

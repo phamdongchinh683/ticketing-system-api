@@ -137,7 +137,6 @@ export async function vnpayIpn(query: Record<string, string>) {
 export async function getPayments(q: PaymentFilter, companyId: OrganizationBusCompanyId) {
     const payments = await dal.payment.payment.query.getPayments(q, companyId)
 
-    console.log(payments)
     const { data, next } = utils.common.paginateByCursor(payments, q.limit)
 
     return {

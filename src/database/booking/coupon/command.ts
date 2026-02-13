@@ -1,13 +1,19 @@
 import { applyCoupon, validateCoupon } from '../../../business/booking/coupon.js'
-import { CouponCheckCodeQuery, CouponFilter } from '../../../model/query/coupon/index.js'
+import {
+    CouponBody,
+    CouponCheckCodeQuery,
+    CouponFilter,
+} from '../../../model/query/coupon/index.js'
 import { dal } from '../../index.js'
-import { OperationTripId } from '../../operation/trip/type.js'
 import { BookingCouponId } from './type.js'
-import { Transaction } from 'kysely'
+import { sql, Transaction } from 'kysely'
 import { Database } from '../../../datasource/type.js'
 import { OperationStationId } from '../../operation/station/type.js'
 import { HttpErr } from '../../../app/index.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
+import { db } from '../../../datasource/db.js'
+import { BookingCouponTableInsert, BookingCouponTableUpdate } from './table.js'
+import _ from 'lodash'
 
 export async function findAllCoupons(filter: CouponFilter) {
     return await dal.booking.coupon.query.findAll(filter)
@@ -118,5 +124,42 @@ export async function resultAmountRoundTrip(
         originalAmount: total,
         discountAmount: 0,
         totalAmount: total,
+    }
+}
+
+export async function createOne(body: CouponBody) {
+    const data = _.omitBy(body, v => _.isNil(v)) as BookingCouponTableInsert
+    return db.insertInto('booking.coupon').values(data).returningAll().executeTakeFirstOrThrow()
+}
+
+export async function updateOne(id: BookingCouponId, body: CouponBody) {
+    const data = _.omitBy(body, v => _.isNil(v)) as BookingCouponTableUpdate
+    return db
+        .updateTable('booking.coupon as c')
+        .set(data)
+        .where('c.id', '=', id)
+        .returningAll()
+        .executeTakeFirstOrThrow()
+}
+
+export function upCountUsedQuantity(id: BookingCouponId, type: '+' | '-', trx?: Transaction<Database>) {
+    if (type === '+') {
+        return (trx ?? db)
+            .updateTable('booking.coupon')
+            .set({
+                usedQuantity: sql`used_quantity + 1`,
+            })
+            .where('id', '=', id)
+            .returningAll()
+            .executeTakeFirstOrThrow()
+    } else if (type === '-') {
+        return (trx ?? db)
+            .updateTable('booking.coupon')
+            .set({
+                usedQuantity: sql`used_quantity - 1`,
+            })
+            .where('id', '=', id)
+            .returningAll()
+            .executeTakeFirstOrThrow()
     }
 }

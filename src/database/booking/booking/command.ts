@@ -211,5 +211,5 @@ export async function updateBookingStatus(
     status: BookingStatus,
     trx: Transaction<Database>
 ) {
-    return trx.updateTable('booking.booking').set({ status }).where('id', '=', bookingId).execute()
+    return trx.updateTable('booking.booking').set({ status }).returning('booking.booking.couponId').where('id', '=', bookingId).execute()
 }

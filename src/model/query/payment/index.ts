@@ -64,9 +64,11 @@ export const PaymentResponse = z.object({
 export type PaymentResponse = z.infer<typeof PaymentResponse>
 
 export const PaymentListResponse = z.object({
-    payments: z.array(PaymentResponse.extend({
-        phone: z.string(),
-    })),
+    payments: z.array(
+        PaymentResponse.extend({
+            phone: z.string(),
+        })
+    ),
     next: PaymentId.nullable(),
 })
 

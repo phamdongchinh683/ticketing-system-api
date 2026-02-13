@@ -1,5 +1,10 @@
 import { dal } from '../../database/index.js'
-import { CouponCheckCodeQuery, CouponFilter } from '../../model/query/coupon/index.js'
+import {
+    CouponBody,
+    CouponCheckCodeQuery,
+    CouponFilter,
+    CouponSupportFilter,
+} from '../../model/query/coupon/index.js'
 import { utils } from '../../utils/index.js'
 import { HttpErr } from '../../app/index.js'
 import { CouponResponse } from '../../model/body/coupon/index.js'
@@ -9,6 +14,7 @@ import { OrganizationBusCompanyId } from '../../database/organization/bus_compan
 import { OperationRouteId } from '../../database/operation/route/type.js'
 import { OperationTripScheduleId } from '../../database/operation/trip-schedule/type.js'
 import { OperationStationId } from '../../database/operation/station/type.js'
+import { BookingCouponTableInsert } from '../../database/booking/coupon/table.js'
 
 export async function getCouponByCode(params: CouponCheckCodeQuery) {
     const coupon = await dal.booking.coupon.cmd.getCouponByCode(params)
@@ -123,6 +129,7 @@ export async function resultAmountOneWay(
         })
         if (coupon) {
             validateCoupon(coupon, originalAmount.price)
+            await dal.booking.coupon.cmd.upCountUsedQuantity(couponId, '+')
             const { discountAmount, finalTotal } = applyCoupon(coupon, originalAmount.price)
             return {
                 originalAmount: originalAmount.price,
@@ -136,5 +143,23 @@ export async function resultAmountOneWay(
         originalAmount: originalAmount.price,
         discountAmount: 0,
         totalAmount: originalAmount.price,
+    }
+}
+
+export async function getCouponsSupport(filter: CouponSupportFilter) {
+    const rows = await dal.booking.coupon.query.findAllSupportCoupons(filter)
+    const { data, next } = utils.common.paginateByCursor(rows, filter.limit)
+    return { coupons: data, next: next }
+}
+
+export async function createCoupon(body: CouponBody) {
+    return {
+        coupon: await dal.booking.coupon.cmd.createOne(body),
+    }
+}
+
+export async function updateCoupon(id: BookingCouponId, body: CouponBody) {
+    return {
+        coupon: await dal.booking.coupon.cmd.updateOne(id, body),
     }
 }
