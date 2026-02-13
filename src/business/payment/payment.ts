@@ -1,12 +1,14 @@
 import { dal } from '../../database/index.js'
 import { utils } from '../../utils/index.js'
 import { PaymentMethodRequest } from '../../model/query/payment/index.js'
-import { PaymentMethod, PaymentStatus } from '../../database/payment/payment/type.js'
+import { PaymentId, PaymentMethod, PaymentStatus } from '../../database/payment/payment/type.js'
 import { service } from '../../service/index.js'
 import { HttpErr } from '../../app/index.js'
 import { BookingId } from '../../database/booking/booking/type.js'
 import { db } from '../../datasource/db.js'
 import { AuthUserId } from '../../database/auth/user/type.js'
+import { OrganizationBusCompanyId } from '../../database/organization/bus_company/type.js'
+import { PaymentFilter } from '../../model/query/payment/index.js'
 
 async function preparePayment(bookingId: BookingId, method: PaymentMethod) {
     let payment = await dal.payment.payment.query.getPayment(bookingId)
@@ -130,4 +132,24 @@ export async function vnpayIpn(query: Record<string, string>) {
         await dal.payment.payment.cmd.updatePaymentStatusSuccess(vnp_TxnRef, vnp_TransactionNo, tx)
         return { RspCode: '00', Message: 'Confirm Success' }
     })
+}
+
+export async function getPayments(q: PaymentFilter, companyId: OrganizationBusCompanyId) {
+    const payments = await dal.payment.payment.query.getPayments(q, companyId)
+
+    console.log(payments)
+    const { data, next } = utils.common.paginateByCursor(payments, q.limit)
+
+    return {
+        payments: data,
+        next: next,
+    }
+}
+
+export async function getRevenueByCompanyId(companyId: OrganizationBusCompanyId) {
+    return await dal.payment.payment.query.getTotalRevenueByCompanyId(companyId)
+}
+
+export async function updateByTransactionCode(transactionCode: string) {
+    return await dal.payment.payment.cmd.updatePaymentByTransactionCode(transactionCode)
 }

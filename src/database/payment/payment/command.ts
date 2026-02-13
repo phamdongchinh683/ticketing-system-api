@@ -8,6 +8,7 @@ import { PaymentStatus } from './type.js'
 import { utils } from '../../../utils/index.js'
 import { BookingId, BookingStatus } from '../../booking/booking/type.js'
 import { BookingTicketStatus } from '../../booking/ticket/type.js'
+import { HttpErr } from '../../../app/index.js'
 
 export async function createPaymentTransaction(
     params: PaymentTableInsert,
@@ -102,4 +103,11 @@ export async function updatePaymentStatusByBookingId(
         .where('pm.bookingId', '=', id)
         .returningAll()
         .executeTakeFirstOrThrow()
+}
+
+export async function updatePaymentByTransactionCode(transactionCode: string) {
+    return db.transaction().execute(async tx => {
+        await dal.payment.payment.cmd.updatePaymentStatusFailed(transactionCode, tx)
+        return { message: 'OK' }
+    })
 }

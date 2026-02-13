@@ -1,6 +1,18 @@
 import z from 'zod'
 import { BookingId } from '../../../database/booking/booking/type.js'
-import { PaymentMethod } from '../../../database/payment/payment/type.js'
+import { PaymentId, PaymentMethod, PaymentStatus } from '../../../database/payment/payment/type.js'
+
+export const PaymentIdParam = z.object({
+    id: PaymentId,
+})
+
+export type PaymentIdParam = z.infer<typeof PaymentIdParam>
+
+export const PaymentTransactionCodeParam = z.object({
+    code: z.string(),
+})
+
+export type PaymentTransactionCodeParam = z.infer<typeof PaymentTransactionCodeParam>
 
 export const PaymentMethodRequest = z.object({
     bookingId: BookingId,
@@ -27,3 +39,35 @@ export const VnPayIpnRequest = z.object({
 })
 
 export type VnPayIpnRequest = z.infer<typeof VnPayIpnRequest>
+
+export const PaymentFilter = z.object({
+    transactionCode: z.string().optional(),
+    status: PaymentStatus.optional(),
+    method: PaymentMethod.optional(),
+    limit: z.coerce.number().optional().default(10),
+    next: PaymentId.optional(),
+})
+
+export type PaymentFilter = z.infer<typeof PaymentFilter>
+
+export const PaymentResponse = z.object({
+    id: PaymentId,
+    bookingId: BookingId,
+    amount: z.number(),
+    method: PaymentMethod,
+    status: PaymentStatus,
+    transactionCode: z.string(),
+    paidAt: z.date().nullable(),
+    expiredAt: z.date(),
+})
+
+export type PaymentResponse = z.infer<typeof PaymentResponse>
+
+export const PaymentListResponse = z.object({
+    payments: z.array(PaymentResponse.extend({
+        phone: z.string(),
+    })),
+    next: PaymentId.nullable(),
+})
+
+export type PaymentListResponse = z.infer<typeof PaymentListResponse>

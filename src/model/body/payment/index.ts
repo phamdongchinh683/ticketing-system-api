@@ -14,3 +14,15 @@ export const VnPayIpnResponse = z.object({
 })
 
 export type VnPayIpnResponse = z.infer<typeof VnPayIpnResponse>
+
+export const RevenueResponse = z.object({
+    total: z.number(),
+})
+
+export type RevenueResponse = z.infer<typeof RevenueResponse>
+
+export const PaymentDeleteResponse = z.object({
+    message: z.string(),
+})
+
+export type PaymentDeleteResponse = z.infer<typeof PaymentDeleteResponse>
