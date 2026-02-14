@@ -142,7 +142,11 @@ export async function updateOne(id: BookingCouponId, body: CouponBody) {
         .executeTakeFirstOrThrow()
 }
 
-export function upCountUsedQuantity(id: BookingCouponId, type: '+' | '-', trx?: Transaction<Database>) {
+export function upCountUsedQuantity(
+    id: BookingCouponId,
+    type: '+' | '-',
+    trx?: Transaction<Database>
+) {
     if (type === '+') {
         return (trx ?? db)
             .updateTable('booking.coupon')

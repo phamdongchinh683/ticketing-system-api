@@ -68,3 +68,18 @@ export const TicketCheckInResponse = z.object({
     }),
 })
 export type TicketCheckInResponse = z.infer<typeof TicketCheckInResponse>
+
+export const TicketSupportResponse = z.object({
+    ticket: z.object({
+        id: BookingTicketId,
+        status: BookingStatus,
+        code: z.string(),
+        bookingType: BookingType,
+        originalAmount: z.number(),
+        discountAmount: z.number(),
+        totalAmount: z.number(),
+        departureDate: z.date(),
+    }),
+})
+
+export type TicketSupportResponse = z.infer<typeof TicketSupportResponse>

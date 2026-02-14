@@ -1,11 +1,12 @@
 import { BookingTicketId, BookingTicketStatus } from '../../database/booking/ticket/type.js'
 import { AuthUserId } from '../../database/auth/user/type.js'
 import { dal } from '../../database/index.js'
-import { TicketFilter } from '../../model/query/ticket/index.js'
+import { TicketFilter, TicketSupportFilter } from '../../model/query/ticket/index.js'
 import { HttpErr } from '../../app/index.js'
 import { BookingStatus } from '../../database/booking/booking/type.js'
 import { utils } from '../../utils/index.js'
 import { OperationTripId } from '../../database/operation/trip/type.js'
+import { OrganizationBusCompanyId } from '../../database/organization/bus_company/type.js'
 
 export async function getTickets(q: TicketFilter, userId: AuthUserId) {
     const tickets = await dal.booking.ticket.query.findAll(q, userId)
@@ -57,5 +58,31 @@ export async function checkInTicket(params: {
     return {
         message: 'OK',
         ticket: ticket,
+    }
+}
+
+export async function getTicketsSupport(q: TicketSupportFilter, companyId: OrganizationBusCompanyId) {
+    const tickets = await dal.booking.ticket.query.findAllSupport(q, companyId)
+    const { data, next } = utils.common.paginateByCursor(tickets, q.limit)
+
+    return {
+        tickets: data,
+        next: next,
+    }
+}
+
+export async function detailTicketSupport(
+    id: BookingTicketId,
+    companyId: OrganizationBusCompanyId
+) {
+    return {
+        ticket: await dal.booking.ticket.query.findByIdSupport(id, companyId),
+    }
+}
+
+export async function deleteTicket(id: BookingTicketId) {
+    return {
+        message: 'OK',
+        tickets: await dal.booking.ticket.cmd.cancelTicketTransaction(id),
     }
 }

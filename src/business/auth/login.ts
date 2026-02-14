@@ -29,8 +29,6 @@ export async function byUsernameEmailOrPhone(params: AuthSignInBody) {
     if (!isValid) {
         throw new HttpErr.Unauthorized('Incorrect password.')
     }
-
-    console.log('user', user)
     return {
         message: 'OK',
         token: generateToken(user),

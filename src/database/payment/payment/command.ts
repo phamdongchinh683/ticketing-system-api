@@ -44,7 +44,7 @@ export async function updatePaymentStatusSuccess(
         trx
     )
 
-   const booking = await dal.booking.booking.cmd.updateBookingStatus(
+    const booking = await dal.booking.booking.cmd.updateBookingStatus(
         payment[0].bookingId,
         BookingStatus.enum.paid,
         trx

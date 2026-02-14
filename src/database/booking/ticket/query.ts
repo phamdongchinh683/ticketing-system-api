@@ -2,9 +2,10 @@ import { db } from '../../../datasource/db.js'
 import { sql } from 'kysely'
 import { AuthUserId } from '../../auth/user/type.js'
 import { OperationTripId } from '../../operation/trip/type.js'
-import { PassengerTicketFilter, TicketFilter } from '../../../model/query/ticket/index.js'
+import { PassengerTicketFilter, TicketFilter, TicketSupportFilter } from '../../../model/query/ticket/index.js'
 import { BookingTicketId, BookingTicketStatus } from './type.js'
 import { BookingStatus } from '../booking/type.js'
+import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
 
 export async function findAll(q: TicketFilter, userId: AuthUserId) {
     const { limit, next } = q
@@ -126,4 +127,72 @@ export async function findPassengersByDriverAndTripId(
         .orderBy('seat.seatNumber')
         .limit(limit + 1)
         .execute()
+}
+
+export async function findAllSupport(q: TicketSupportFilter, companyId: OrganizationBusCompanyId) {
+    const { limit, next, status, type, code } = q
+
+    return db
+        .selectFrom('booking.ticket as t')
+        .innerJoin('booking.booking as b', 'b.id', 't.bookingId')
+        .innerJoin('operation.trip as trip', 'trip.id', 't.tripId')
+        .innerJoin('operation.trip_schedule as tsp', 'tsp.id', 'trip.scheduleId')
+        .where(eb => {
+            const cond = []
+            cond.push(eb('tsp.companyId', '=', companyId))
+            if (status) {
+                cond.push(eb('t.status', '=', status))
+            }
+            if (code) {
+                cond.push(eb('b.code', '=', code))
+            }
+
+            if (type) {
+                cond.push(eb('b.bookingType', '=', type))
+            }
+
+            if (next) {
+                cond.push(eb('t.id', '>', next))
+            }
+
+            return eb.and(cond)
+        })
+        .select([
+            't.id',
+            'b.code',
+            'b.bookingType',
+            'b.originalAmount',
+            'b.discountAmount',
+            'b.totalAmount',
+            'b.status',
+            'trip.departureDate',
+        ])
+        .orderBy('trip.departureDate', 'desc')
+        .limit(limit + 1)
+        .execute()
+}
+
+export async function findByIdSupport(id: BookingTicketId, companyId: OrganizationBusCompanyId) {
+    return db
+        .selectFrom('booking.ticket as t')
+        .innerJoin('booking.booking as b', 'b.id', 't.bookingId')
+        .innerJoin('operation.trip as trip', 'trip.id', 't.tripId')
+        .innerJoin('operation.trip_schedule as tsp', 'tsp.id', 'trip.scheduleId')
+        .where(eb => {
+            const cond = []
+            cond.push(eb('tsp.companyId', '=', companyId))
+            cond.push(eb('t.id', '=', id))
+            return eb.and(cond)
+        })
+        .select([
+            't.id',
+            'b.code',
+            'b.bookingType',
+            'b.originalAmount',
+            'b.discountAmount',
+            'b.totalAmount',
+            'b.status',
+            'trip.departureDate',
+        ])
+        .executeTakeFirstOrThrow()
 }

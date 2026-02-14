@@ -168,8 +168,6 @@ export async function createRoundTripBooking(params: BookingRequest, userId: Aut
                 tx
             )
 
-            console.log(ticket)
-
             await dal.booking.seatSegment.cmd.insertManySeatSegmentsTransaction(
                 [
                     {
@@ -211,5 +209,10 @@ export async function updateBookingStatus(
     status: BookingStatus,
     trx: Transaction<Database>
 ) {
-    return trx.updateTable('booking.booking').set({ status }).returning('booking.booking.couponId').where('id', '=', bookingId).execute()
+    return trx
+        .updateTable('booking.booking')
+        .set({ status })
+        .returning('booking.booking.couponId')
+        .where('id', '=', bookingId)
+        .execute()
 }
