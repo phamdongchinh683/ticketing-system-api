@@ -23,7 +23,7 @@ export type AuthBody = z.infer<typeof AuthBody>
 export const AuthResponse = z.object({
     message: z.string().optional(),
     token: z.string(),
-    user: UserInfo.omit({ staffProfileRole: true, companyId: true }),
+    user: UserInfo.omit({ companyId: true }),
 })
 
 export type AuthResponse = z.infer<typeof AuthResponse>
