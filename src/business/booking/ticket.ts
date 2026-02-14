@@ -61,7 +61,10 @@ export async function checkInTicket(params: {
     }
 }
 
-export async function getTicketsSupport(q: TicketSupportFilter, companyId: OrganizationBusCompanyId) {
+export async function getTicketsSupport(
+    q: TicketSupportFilter,
+    companyId: OrganizationBusCompanyId
+) {
     const tickets = await dal.booking.ticket.query.findAllSupport(q, companyId)
     const { data, next } = utils.common.paginateByCursor(tickets, q.limit)
 

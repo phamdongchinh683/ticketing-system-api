@@ -1,7 +1,7 @@
 import { Transaction } from 'kysely'
 import { db } from '../../../datasource/db.js'
 import { Database } from '../../../datasource/type.js'
-import { AuthUserId } from '../../auth/staff_detail/type.js'
+import { AuthUserId } from '../../auth/user/type.js'
 import { BookingId } from './type.js'
 import { BookingTicketId } from '../ticket/type.js'
 

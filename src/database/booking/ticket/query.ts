@@ -2,7 +2,11 @@ import { db } from '../../../datasource/db.js'
 import { sql } from 'kysely'
 import { AuthUserId } from '../../auth/user/type.js'
 import { OperationTripId } from '../../operation/trip/type.js'
-import { PassengerTicketFilter, TicketFilter, TicketSupportFilter } from '../../../model/query/ticket/index.js'
+import {
+    PassengerTicketFilter,
+    TicketFilter,
+    TicketSupportFilter,
+} from '../../../model/query/ticket/index.js'
 import { BookingTicketId, BookingTicketStatus } from './type.js'
 import { BookingStatus } from '../booking/type.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
