@@ -12,9 +12,7 @@ export async function findByNameOrHotline(
     return (trx ?? db)
         .selectFrom('organization.bus_company')
         .select('id')
-        .where(eb =>
-            eb.or([eb('name', '=', name), eb('hotline', '=', hotline)])
-        )
+        .where(eb => eb.or([eb('name', '=', name), eb('hotline', '=', hotline)]))
         .executeTakeFirst()
 }
 

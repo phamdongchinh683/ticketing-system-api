@@ -135,7 +135,7 @@ export async function signUpCompanyAdminWithCompany(
                 {
                     username: params.username,
                     fullName: params.fullName,
-                    password: params.password,
+                    password: utils.password.hashPassword(params.password),
                     phone: phone,
                     email: email,
                     status: AuthUserStatus.enum.active,
@@ -190,6 +190,24 @@ export async function updateOne(userId: AuthUserId, params: AuthUserTableUpdate)
     return db
         .updateTable('auth.user')
         .set(params)
+        .where('id', '=', userId)
+        .returningAll()
+        .executeTakeFirstOrThrow()
+}
+
+export async function updatePassword(userId: AuthUserId, password: string) {
+    return db
+        .updateTable('auth.user')
+        .set({ password: utils.password.hashPassword(password) })
+        .where('id', '=', userId)
+        .returningAll()
+        .executeTakeFirstOrThrow()
+}
+
+
+export async function deleteOne(userId: AuthUserId, trx?: Transaction<Database>) {
+    return (trx ?? db)
+        .deleteFrom('auth.user')
         .where('id', '=', userId)
         .returningAll()
         .executeTakeFirstOrThrow()

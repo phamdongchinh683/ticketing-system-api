@@ -1,7 +1,7 @@
 import { db } from '../../../datasource/db.js'
 import { sql } from 'kysely'
 import { AuthUserId } from '../../auth/user/type.js'
-import { OperationTripId } from '../../operation/trip/type.js'
+import { OperationTripId, OperationTripStatus } from '../../operation/trip/type.js'
 import {
     PassengerTicketFilter,
     TicketFilter,
@@ -19,6 +19,7 @@ export async function findAll(q: TicketFilter, userId: AuthUserId) {
         .innerJoin('operation.trip as trip', 'trip.id', 't.tripId')
         .where(eb => {
             const cond = []
+            cond.push(eb('trip.status', '!=', OperationTripStatus.enum.cancelled))
             cond.push(eb('b.userId', '=', userId))
             if (next) {
                 cond.push(eb('t.id', '>', next))
@@ -29,6 +30,7 @@ export async function findAll(q: TicketFilter, userId: AuthUserId) {
             if (q.status) {
                 cond.push(eb('t.status', '=', q.status))
             }
+
             return eb.and(cond)
         })
         .select([

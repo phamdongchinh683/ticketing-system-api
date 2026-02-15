@@ -3,7 +3,7 @@ import { bus } from '../../../business/index.js'
 import { requireStaffProfileRole } from '../../../app/jwt/handler.js'
 import { AuthUserRole } from '../../../database/auth/user/type.js'
 import { AuthStaffProfileRole } from '../../../database/auth/staff_profile/type.js'
-import { CompanyAdminListQuery } from '../../../model/query/company-admin/index.js'
+import { CompanyAdminQuery } from '../../../model/query/company-admin/index.js'
 import { CompanyAdminListResponseSchema } from '../../../model/body/company-admin/index.js'
 
 const __filename = new URL('', import.meta.url).pathname
@@ -26,7 +26,7 @@ api.route({
     },
 
     schema: {
-        querystring: CompanyAdminListQuery,
+        querystring: CompanyAdminQuery,
         response: { 200: CompanyAdminListResponseSchema },
         tags: tags(__filename),
         security: bearer,

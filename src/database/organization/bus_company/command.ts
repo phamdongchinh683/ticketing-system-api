@@ -29,7 +29,6 @@ export async function updateOne(
         .executeTakeFirstOrThrow()
 }
 
-
 export async function deleteOne(id: OrganizationBusCompanyId, trx?: Transaction<Database>) {
     return (trx ?? db)
         .deleteFrom('organization.bus_company')

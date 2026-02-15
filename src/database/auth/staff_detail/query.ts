@@ -1,4 +1,4 @@
-import { CompanyAdminListQuery } from '../../../model/query/company-admin/index.js'
+import { CompanyAdminQuery } from '../../../model/query/company-admin/index.js'
 import { StaffRoleQuery } from '../../../model/query/staff/index.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
 import { AuthStaffProfileRole } from '../staff_profile/type.js'
@@ -55,7 +55,7 @@ export async function findAll(query: StaffRoleQuery, companyId: OrganizationBusC
         .execute()
 }
 
-export async function findAllCompanyAdmins(query: CompanyAdminListQuery) {
+export async function findAllCompanyAdmins(query: CompanyAdminQuery) {
     const { limit, next } = query
     return db
         .selectFrom('auth.user as u')

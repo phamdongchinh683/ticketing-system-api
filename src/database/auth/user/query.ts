@@ -2,14 +2,20 @@ import { sql } from 'kysely'
 import { db } from '../../../datasource/db.js'
 import { DriverQuery } from '../../../model/query/driver/index.js'
 import { AuthUserTableInsert } from './table.js'
-import { AuthUserRole } from './type.js'
+import { AuthUserRole, AuthUserId } from './type.js'
+import { UserListQuery } from '../../../model/body/user/index.js'
 
 export async function insertOne(params: AuthUserTableInsert) {
     return db.insertInto('auth.user').values(params).returningAll().executeTakeFirstOrThrow()
 }
 
-export function getOne(params: { username?: string; email?: string; phone?: string }) {
-    const { username, email, phone } = params
+export function getOne(params: {
+    username?: string
+    email?: string
+    phone?: string
+    id?: AuthUserId
+}) {
+    const { username, email, phone, id } = params
     return db
         .selectFrom('auth.user as u')
         .leftJoin('auth.staff_profile', 'u.id', 'auth.staff_profile.userId')
@@ -31,6 +37,7 @@ export function getOne(params: { username?: string; email?: string; phone?: stri
             if (username) cond.push(eb('u.username', '=', username))
             if (email) cond.push(eb('u.email', '=', email))
             if (phone) cond.push(eb('u.phone', '=', phone))
+            if (id) cond.push(eb('u.id', '=', id))
             return eb.and(cond)
         })
         .executeTakeFirst()
@@ -57,6 +64,28 @@ export async function findAllDrivers(query: DriverQuery) {
             return eb.and(cond)
         })
         .select(['u.id', 'u.fullName', 'u.email', 'u.phone', 'u.role', 'u.status'])
+        .limit(limit + 1)
+        .orderBy('u.id', 'asc')
+        .execute()
+}
+
+export function findAll(query: UserListQuery) {
+    const { limit, next, status, role, companyId, email, phone } = query
+    return db
+        .selectFrom('auth.user as u')
+        .leftJoin('auth.staff_profile as sp', 'sp.userId', 'u.id')
+        .leftJoin('auth.staff_detail as sd', 'sd.userId', 'u.id')
+        .where(eb => {
+            const cond = []
+            if (status) cond.push(eb('u.status', '=', status))
+            if (role) cond.push(eb('u.role', '=', role))
+            if (companyId) cond.push(eb('sd.companyId', '=', companyId))
+            if (email) cond.push(eb('u.email', '=', email))
+            if (phone) cond.push(eb('u.phone', '=', phone))
+            if (next) cond.push(eb('u.id', '>', next))
+            return eb.and(cond)
+        })
+        .select(['u.id', 'u.username', 'u.fullName', 'u.email', 'u.phone', 'u.role', 'u.status', 'sp.role as staffProfileRole'])
         .limit(limit + 1)
         .orderBy('u.id', 'asc')
         .execute()

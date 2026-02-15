@@ -22,6 +22,9 @@ export async function deleteOne(id: OrganizationBusCompanyId) {
     return { company: await dal.organization.busCompany.cmd.deleteOne(id) }
 }
 
-export async function updateOne(id: OrganizationBusCompanyId, body: OrganizationBusCompanyTableUpdate) {
+export async function updateOne(
+    id: OrganizationBusCompanyId,
+    body: OrganizationBusCompanyTableUpdate
+) {
     return { company: await dal.organization.busCompany.cmd.updateOne(id, body) }
 }

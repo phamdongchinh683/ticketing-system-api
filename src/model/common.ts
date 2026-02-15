@@ -30,3 +30,8 @@ export type UserInfo = z.infer<typeof UserInfo>
 
 export const OrderBy = z.enum(['asc', 'desc'])
 export type OrderBy = z.infer<typeof OrderBy>
+
+export const MessageResponse = z.object({
+    message: z.string(),
+})
+export type MessageResponse = z.infer<typeof MessageResponse>

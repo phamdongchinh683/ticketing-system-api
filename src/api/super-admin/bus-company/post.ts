@@ -3,7 +3,11 @@ import { bus } from '../../../business/index.js'
 import { requireStaffProfileRole } from '../../../app/jwt/handler.js'
 import { AuthUserRole } from '../../../database/auth/user/type.js'
 import { AuthStaffProfileRole } from '../../../database/auth/staff_profile/type.js'
-import { BusCompanyBody, BusCompanyListResponse, BusCompanyResponse } from '../../../model/body/bus-company/index.js'
+import {
+    BusCompanyBody,
+    BusCompanyListResponse,
+    BusCompanyResponse,
+} from '../../../model/body/bus-company/index.js'
 import { BusCompanyListQuery } from '../../../model/query/bus-company/index.js'
 
 const __filename = new URL('', import.meta.url).pathname

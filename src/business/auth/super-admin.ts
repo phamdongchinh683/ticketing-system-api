@@ -1,13 +1,12 @@
 import { dal } from '../../database/index.js'
-import { CompanyAdminListQuery } from '../../model/query/company-admin/index.js'
-import {
-    CompanyAdminCreateBody,
-    CompanyAdminUpdateBody,
-} from '../../model/body/company-admin/index.js'
-import { AuthUserId, AuthUserStatus } from '../../database/auth/user/type.js'
+import { CompanyAdminQuery } from '../../model/query/company-admin/index.js'
+import { CompanyAdminCreateBody } from '../../model/body/company-admin/index.js'
 import { AuthStaffProfileRole } from '../../database/auth/staff_profile/type.js'
 import { utils } from '../../utils/index.js'
-import { HttpErr } from '../../app/index.js'
+import { AuthUserId } from '../../database/auth/user/type.js'
+import { UserBody, UserUpdateBody } from '../../model/body/user/index.js'
+import { AuthPassword } from '../../model/body/auth/index.js'
+import { UserListQuery } from '../../model/body/user/index.js'
 
 export async function getDashboard() {
     const [totalUsers, totalBookings, totalRevenue] = await Promise.all([
@@ -24,7 +23,7 @@ export async function getDashboard() {
     }
 }
 
-export async function listCompanyAdmins(query: CompanyAdminListQuery) {
+export async function listCompanyAdmins(query: CompanyAdminQuery) {
     const result = await dal.auth.staffDetail.query.findAllCompanyAdmins(query)
     const { data, next } = utils.common.paginateByCursor(result, query.limit)
     return {
@@ -39,4 +38,47 @@ export async function createCompanyAdmin(body: CompanyAdminCreateBody) {
         AuthStaffProfileRole.enum.company_admin,
         body.companyId
     )
+}
+
+export async function updateOne(id: AuthUserId, body: UserUpdateBody) {
+    return {
+        user: await dal.auth.user.cmd.updateOne(id, body),
+    }
+}
+
+export async function updateNewPassword(id: AuthUserId, password: AuthPassword) {
+    await dal.auth.user.cmd.updatePassword(id, password)
+    return {
+        message: 'OK',
+        password: password,
+    }
+}
+
+export async function listUsers(query: UserListQuery) {
+    const result = await dal.auth.user.query.findAll(query)
+    const { data, next } = utils.common.paginateByCursor(result, query.limit)
+    return {
+        users: data,
+        next,
+    }
+}
+
+export async function createUser(body: UserBody) {
+    return dal.auth.user.cmd.signUp({
+        username: body.username,
+        password: utils.password.hashPassword(body.password),
+        fullName: body.fullName,
+        email: body.email,
+        phone: body.phone,
+        role: body.role,
+        status: body.status,
+    })
+}
+
+export async function deleteOne(id: AuthUserId) {
+    const user = await dal.auth.user.cmd.deleteOne(id)
+    return {
+        message: 'OK',
+        user: user,
+    }
 }
