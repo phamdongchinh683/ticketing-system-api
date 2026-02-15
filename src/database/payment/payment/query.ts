@@ -112,6 +112,15 @@ export async function getPayments(
         .execute()
 }
 
+export async function getTotalRevenue(trx?: Transaction<Database>) {
+    const r = await (trx ?? db)
+        .selectFrom('payment.payment as pp')
+        .where('pp.status', '=', PaymentStatus.enum.success)
+        .select(sql<number>`coalesce(sum(${sql.ref('pp.amount')}), 0)`.as('total'))
+        .executeTakeFirstOrThrow()
+    return Number(r.total)
+}
+
 export async function getTotalRevenueByCompanyId(
     companyId: OrganizationBusCompanyId,
     trx?: Transaction<Database>

@@ -1,6 +1,5 @@
 import { db } from '../../../datasource/db.js'
 import { AuthStaffProfileTableSelect, AuthStaffProfileTableUpdate } from './table.js'
-import { AuthStaffProfileId } from './type.js'
 import { AuthUserId } from '../user/type.js'
 
 export async function getOne(params: AuthStaffProfileTableSelect) {

@@ -1,5 +1,7 @@
+import { CompanyAdminListQuery } from '../../../model/query/company-admin/index.js'
 import { StaffRoleQuery } from '../../../model/query/staff/index.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
+import { AuthStaffProfileRole } from '../staff_profile/type.js'
 import { db } from '../../../datasource/db.js'
 
 export async function findAll(query: StaffRoleQuery, companyId: OrganizationBusCompanyId) {
@@ -50,5 +52,34 @@ export async function findAll(query: StaffRoleQuery, companyId: OrganizationBusC
         })
         .limit(limit + 1)
         .orderBy('id', 'asc')
+        .execute()
+}
+
+export async function findAllCompanyAdmins(query: CompanyAdminListQuery) {
+    const { limit, next } = query
+    return db
+        .selectFrom('auth.user as u')
+        .innerJoin('auth.staff_profile as sp', 'sp.userId', 'u.id')
+        .innerJoin('auth.staff_detail as sd', 'sd.userId', 'u.id')
+        .leftJoin('organization.bus_company as bc', 'bc.id', 'sd.companyId')
+        .where(eb => {
+            const cond = []
+            cond.push(eb('sp.role', '=', AuthStaffProfileRole.enum.company_admin))
+            if (next) cond.push(eb('u.id', '>', next))
+            return eb.and(cond)
+        })
+        .select([
+            'u.id',
+            'u.username',
+            'u.fullName',
+            'u.email',
+            'u.phone',
+            'u.status',
+            'sp.role',
+            'sd.companyId',
+            'bc.name as companyName',
+        ])
+        .limit(limit + 1)
+        .orderBy('u.id', 'asc')
         .execute()
 }

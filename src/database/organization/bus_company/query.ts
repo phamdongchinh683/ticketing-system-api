@@ -1,0 +1,34 @@
+import { Transaction } from 'kysely'
+import { Database } from '../../../datasource/type.js'
+import { db } from '../../../datasource/db.js'
+import { BusCompanyListQuery } from '../../../model/query/bus-company/index.js'
+import { OrganizationBusCompanyId } from './type.js'
+
+export async function findByNameOrHotline(
+    name: string,
+    hotline: string,
+    trx?: Transaction<Database>
+): Promise<{ id: OrganizationBusCompanyId } | undefined> {
+    return (trx ?? db)
+        .selectFrom('organization.bus_company')
+        .select('id')
+        .where(eb =>
+            eb.or([eb('name', '=', name), eb('hotline', '=', hotline)])
+        )
+        .executeTakeFirst()
+}
+
+export async function findAll(query: BusCompanyListQuery) {
+    const { limit, next } = query
+    return db
+        .selectFrom('organization.bus_company as bc')
+        .selectAll()
+        .where(eb => {
+            const cond = []
+            if (next) cond.push(eb('bc.id', '>', next))
+            return eb.and(cond)
+        })
+        .limit(limit + 1)
+        .orderBy('bc.id', 'asc')
+        .execute()
+}

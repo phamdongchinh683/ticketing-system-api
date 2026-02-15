@@ -1,9 +1,17 @@
-import { Transaction } from 'kysely'
+import { Transaction, sql } from 'kysely'
 import { db } from '../../../datasource/db.js'
 import { Database } from '../../../datasource/type.js'
 import { AuthUserId } from '../../auth/user/type.js'
 import { BookingId } from './type.js'
 import { BookingTicketId } from '../ticket/type.js'
+
+export async function countAll(trx?: Transaction<Database>) {
+    const r = await (trx ?? db)
+        .selectFrom('booking.booking')
+        .select(sql<number>`count(*)::int`.as('total'))
+        .executeTakeFirstOrThrow()
+    return r.total
+}
 
 export async function getAmountByBookingId(bookingId: BookingId) {
     return db

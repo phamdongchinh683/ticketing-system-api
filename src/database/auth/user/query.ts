@@ -1,3 +1,4 @@
+import { sql } from 'kysely'
 import { db } from '../../../datasource/db.js'
 import { DriverQuery } from '../../../model/query/driver/index.js'
 import { AuthUserTableInsert } from './table.js'
@@ -33,6 +34,14 @@ export function getOne(params: { username?: string; email?: string; phone?: stri
             return eb.and(cond)
         })
         .executeTakeFirst()
+}
+
+export async function countAll() {
+    const r = await db
+        .selectFrom('auth.user')
+        .select(sql<number>`count(*)::int`.as('total'))
+        .executeTakeFirstOrThrow()
+    return r.total
 }
 
 export async function findAllDrivers(query: DriverQuery) {
