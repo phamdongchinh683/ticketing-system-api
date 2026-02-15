@@ -1,7 +1,7 @@
-import { Email, Phone } from "../../common.js";
-import z from "zod";
-import { AuthStaffDetailId } from "../../../database/auth/staff_detail/type.js";
-import { AuthUserId } from "../../../database/auth/user/type.js";
+import { Email, Phone } from '../../common.js'
+import z from 'zod'
+import { AuthStaffDetailId } from '../../../database/auth/staff_detail/type.js'
+import { AuthUserId } from '../../../database/auth/user/type.js'
 
 export const StaffRoleBody = z.object({
     fullName: z.string().min(7).nullable().optional(),

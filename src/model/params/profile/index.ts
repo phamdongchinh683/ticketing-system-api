@@ -1,5 +1,5 @@
-import { AuthStaffProfileId } from "../../../database/auth/staff_profile/type.js"
-import z from "zod"
+import { AuthStaffProfileId } from '../../../database/auth/staff_profile/type.js'
+import z from 'zod'
 export const StaffIdParam = z.object({
     id: AuthStaffProfileId,
 })

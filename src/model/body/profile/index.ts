@@ -2,7 +2,10 @@ import { AuthUserId, AuthUserStatus } from '../../../database/auth/user/type.js'
 import { z } from 'zod'
 import { OrganizationBusCompanyId } from '../../../database/organization/bus_company/type.js'
 import { Email, Phone } from '../../common.js'
-import { AuthStaffProfileId, AuthStaffProfileRole } from '../../../database/auth/staff_profile/type.js'
+import {
+    AuthStaffProfileId,
+    AuthStaffProfileRole,
+} from '../../../database/auth/staff_profile/type.js'
 
 export const ProfileUpdateBody = z.object({
     fullName: z.string().optional(),

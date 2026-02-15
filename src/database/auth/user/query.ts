@@ -1,5 +1,7 @@
 import { db } from '../../../datasource/db.js'
+import { DriverQuery } from '../../../model/query/driver/index.js'
 import { AuthUserTableInsert } from './table.js'
+import { AuthUserRole } from './type.js'
 
 export async function insertOne(params: AuthUserTableInsert) {
     return db.insertInto('auth.user').values(params).returningAll().executeTakeFirstOrThrow()
@@ -31,4 +33,22 @@ export function getOne(params: { username?: string; email?: string; phone?: stri
             return eb.and(cond)
         })
         .executeTakeFirst()
+}
+
+export async function findAllDrivers(query: DriverQuery) {
+    const { limit, next, phone, status } = query
+    return db
+        .selectFrom('auth.user as u')
+        .where(eb => {
+            const cond = []
+            cond.push(eb('u.role', '=', AuthUserRole.enum.driver))
+            if (phone) cond.push(eb('u.phone', '=', phone))
+            if (status) cond.push(eb('u.status', '=', status))
+            if (next) cond.push(eb('u.id', '>', next))
+            return eb.and(cond)
+        })
+        .select(['u.id', 'u.fullName', 'u.email', 'u.phone', 'u.role', 'u.status'])
+        .limit(limit + 1)
+        .orderBy('u.id', 'asc')
+        .execute()
 }

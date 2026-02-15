@@ -1,7 +1,7 @@
 import { api, endpoint, tags, bearer } from '../../../../../app/api.js'
 import { bus } from '../../../../../business/index.js'
 import { requireRoles } from '../../../../../app/jwt/handler.js'
-import {  AuthUserRole } from '../../../../../database/auth/user/type.js'
+import { AuthUserRole } from '../../../../../database/auth/user/type.js'
 import { StaffRoleResponse, StaffRoleUpdateBody } from '../../../../../model/body/profile/index.js'
 import { UserIdParam } from '../../../../../model/params/user/index.js'
 
@@ -23,7 +23,7 @@ api.route({
     schema: {
         params: UserIdParam,
         body: StaffRoleUpdateBody,
-        response: { 200: StaffRoleResponse }, 
+        response: { 200: StaffRoleResponse },
         tags: tags(__filename),
         security: bearer,
     },

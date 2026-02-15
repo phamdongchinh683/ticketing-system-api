@@ -1,5 +1,5 @@
-import { AuthUserId } from "../../../database/auth/user/type.js"
-import z from "zod"
+import { AuthUserId } from '../../../database/auth/user/type.js'
+import z from 'zod'
 
 export const UserIdParam = z.object({
     userId: AuthUserId,

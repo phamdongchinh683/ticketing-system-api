@@ -6,10 +6,7 @@ import { StaffRoleQuery } from '../../model/query/staff/index.js'
 import { utils } from '../../utils/index.js'
 import { AuthUserId } from '../../database/auth/user/type.js'
 
-export async function getStaffRole(
-    query: StaffRoleQuery,
-    companyId: OrganizationBusCompanyId
-){
+export async function getStaffRole(query: StaffRoleQuery, companyId: OrganizationBusCompanyId) {
     const result = await dal.auth.staffDetail.query.findAll(query, companyId)
     const { data, next } = utils.common.paginateByCursor(result, query.limit)
 

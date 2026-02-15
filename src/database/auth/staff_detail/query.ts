@@ -3,17 +3,7 @@ import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js
 import { db } from '../../../datasource/db.js'
 
 export async function findAll(query: StaffRoleQuery, companyId: OrganizationBusCompanyId) {
-    const {
-        position,
-        department,
-        status,
-        code,
-        email,
-        phone,
-        identityNumber,
-        limit,
-        next,
-    } = query
+    const { position, department, status, code, email, phone, identityNumber, limit, next } = query
     return await db
         .selectFrom('auth.staff_detail as a')
         .innerJoin('auth.user', 'a.userId', 'auth.user.id')
