@@ -287,13 +287,6 @@ backend-fastify-setting/
 
 The project includes CI/CD pipelines for automated Docker builds and deployments:
 
-### GitHub Actions
-
-GitHub Actions workflow (`.github/workflows/docker.yml`) that:
-- Builds Docker image on push to `dev` branch
-- Pushes image to Docker Hub
-- Tags images with `latest` and commit SHA
-
 **Setup:**
 1. Create a repository on Docker Hub
 2. Add GitHub Secrets: `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`
@@ -381,14 +374,3 @@ TypeScript is configured with strict mode. Check types:
 yarn build
 ```
 
-## 📝 License
-
-[Add your license here]
-
-## 🤝 Contributing
-
-[Add contributing guidelines here]
-
-## 📞 Support
-
-[Add support information here]
