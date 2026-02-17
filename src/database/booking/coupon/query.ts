@@ -6,7 +6,6 @@ import {
     CouponSupportFilter,
 } from '../../../model/query/coupon/index.js'
 import { utils } from '../../../utils/index.js'
-import { BookingCouponId } from './type.js'
 
 export function findAll(q: CouponFilter) {
     const { next, orderTotal } = q
@@ -70,7 +69,6 @@ export function findAllSupportCoupons(filter: CouponSupportFilter) {
 
             filters.push(eb('c.startDate', '<=', now).or(eb('c.startDate', 'is', null)))
             filters.push(eb('c.endDate', '>=', now).or(eb('c.endDate', 'is', null)))
-            filters.push(eb('c.isActive', '=', true))
             filters.push(eb('c.usedQuantity', '<', eb.ref('c.totalQuantity')))
             if (date) {
                 filters.push(eb('c.createdAt', '<=', date))
@@ -78,8 +76,9 @@ export function findAllSupportCoupons(filter: CouponSupportFilter) {
             if (type) {
                 filters.push(eb('c.discountType', '=', type))
             }
-            if (status) {
-                filters.push(eb('c.isActive', '=', status))
+            if (status !== undefined) {
+                const isActive = status === 'true'
+                filters.push(eb('c.isActive', '=', isActive))
             }
             return eb.and(filters)
         })
