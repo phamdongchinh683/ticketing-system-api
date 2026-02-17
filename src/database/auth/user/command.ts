@@ -204,7 +204,6 @@ export async function updatePassword(userId: AuthUserId, password: string) {
         .executeTakeFirstOrThrow()
 }
 
-
 export async function deleteOne(userId: AuthUserId, trx?: Transaction<Database>) {
     return (trx ?? db)
         .deleteFrom('auth.user')

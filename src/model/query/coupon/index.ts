@@ -19,7 +19,7 @@ export const CouponSupportFilter = z.object({
     limit: z.coerce.number().optional().default(10),
     date: z.coerce.date().optional(),
     type: BookingDiscountType.optional(),
-    status: z.boolean().optional(),
+    status: z.string().optional().default('true'),
 })
 
 export type CouponSupportFilter = z.infer<typeof CouponSupportFilter>

@@ -1,5 +1,5 @@
 import { api, endpoint, bearer, tags } from '../../../app/api.js'
-import {  requireStaffProfileRole } from '../../../app/jwt/handler.js'
+import { requireStaffProfileRole } from '../../../app/jwt/handler.js'
 import { bus } from '../../../business/index.js'
 import { AuthStaffProfileRole } from '../../../database/auth/staff_profile/type.js'
 import { AuthUserRole } from '../../../database/auth/user/type.js'

@@ -85,7 +85,16 @@ export function findAll(query: UserListQuery) {
             if (next) cond.push(eb('u.id', '>', next))
             return eb.and(cond)
         })
-        .select(['u.id', 'u.username', 'u.fullName', 'u.email', 'u.phone', 'u.role', 'u.status', 'sp.role as staffProfileRole'])
+        .select([
+            'u.id',
+            'u.username',
+            'u.fullName',
+            'u.email',
+            'u.phone',
+            'u.role',
+            'u.status',
+            'sp.role as staffProfileRole',
+        ])
         .limit(limit + 1)
         .orderBy('u.id', 'asc')
         .execute()

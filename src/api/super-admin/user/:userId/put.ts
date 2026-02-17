@@ -11,7 +11,11 @@ const __filename = new URL('', import.meta.url).pathname
 api.route({
     ...endpoint(__filename),
     handler: async request => {
-        const userInfo = requireStaffProfileRole(request.headers, [AuthUserRole.enum.admin], [AuthStaffProfileRole.enum.super_admin])
+        const userInfo = requireStaffProfileRole(
+            request.headers,
+            [AuthUserRole.enum.admin],
+            [AuthStaffProfileRole.enum.super_admin]
+        )
         const { userId } = request.params
         return await bus.auth.superAdmin.updateOne(userId, request.body)
     },
