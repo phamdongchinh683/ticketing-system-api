@@ -122,7 +122,7 @@ const start = async () => {
             openapi: {
                 info: {
                     title: 'API',
-                    description: 'API documentation for the backend',
+                    description: 'API documentation for the Bus Ticketing System',
                     version: '1.0.0',
                 },
                 components: {
