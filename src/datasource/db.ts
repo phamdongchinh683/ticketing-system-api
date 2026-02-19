@@ -14,7 +14,7 @@ types.setTypeParser(types.builtins.NUMERIC, toNumber)
 
 const poolConfig: PoolConfig = {
     connectionString: process.env.DB_URL,
-    max: 2,
+    max: 20,
     min: 0,
 }
 
