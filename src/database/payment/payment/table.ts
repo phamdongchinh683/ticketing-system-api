@@ -10,7 +10,8 @@ export interface PaymentTable extends Timestamps {
     method: PaymentMethod
     status: PaymentStatus
     transactionCode: string
-    paidAt: Date
+    paidAt: Date | null
+    transactionNo: string | null
 }
 
 export type PaymentTableInsert = Insertable<PaymentTable>

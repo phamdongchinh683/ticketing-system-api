@@ -1,18 +1,30 @@
-# backend-fastify-setting
-A high-performance Fastify-based backend API for a QR-based table ordering system, built with TypeScript, PostgreSQL, and Docker.
+# Bus Ticketing System – Backend API
+
+Backend for a **bus ticketing system**: multiple bus companies, routes, trip schedules, seat booking, and online payments.
+
+- **Multi-tenant**: Each bus company has its own admins, drivers, vehicles, and trips.
+- **Roles**: Super admin, company admin (operator / support / accountant), driver, customer.
+- **Stack**: Fastify, TypeScript, PostgreSQL (Kysely), Docker.
+
+## What it does
+
+- **Super admin**: Dashboard stats, manage bus companies, company admins, and users.
+- **Company admin**: Manage drivers, staff, vehicles, profile; operators handle stations, trip schedules, and price templates; support handles tickets and coupons; accountants handle payments and revenue.
+- **Drivers**: View trips, passengers, and perform check-in.
+- **Customers**: Sign up, search trip schedules, book seats, manage tickets and coupons.
+- **Payments**: Payment method creation and VNPay IPN webhook.
+
 
 ## 🚀 Features
 
-- ⚡ **Fastify** - High-performance web framework
-- 📝 **TypeScript** - Type-safe development
-- 📚 **Swagger/OpenAPI** - Interactive API documentation
-- 🔐 **JWT Authentication** - Secure token-based auth
-- ✅ **Zod Schema Validation** - Runtime type validation
-- 🗄️ **Kysely Query Builder** - Type-safe SQL queries
-- 🐳 **Docker Support** - Containerized development and deployment
-- 🎨 **Prettier & ESLint** - Code quality and formatting
-- 🔄 **Database Migrations** - Version-controlled schema changes
-- 🚢 **CI/CD** - Automated Docker builds and deployments
+- ⚡ **Fastify** – High-performance web framework
+- 📝 **TypeScript** – Type-safe development
+- 📚 **Swagger/OpenAPI** – Interactive API documentation
+- 🔐 **JWT Authentication** – Role-based access (admin, driver, customer)
+- ✅ **Zod Schema Validation** – Request/response validation
+- 🗄️ **Kysely** – Type-safe SQL with PostgreSQL
+- 🐳 **Docker** – Database and production deployment
+- 🔄 **Migrations** – Version-controlled schema (Kysely)
 
 ## 📋 Prerequisites
 
@@ -41,14 +53,17 @@ yarn install
 Create a `.env` file in the root directory:
 
 ```env
-# Database Configuration
+# Database
 DB_URL=postgres://app_user:app_password@localhost:5432/app_db
 
-# Server Configuration
+# Auth
+JWT_SECRET=your-secret-key
+
+# Server
 PORT=3000
 HOST=127.0.0.1
 
-# Application Environment
+# App
 APP_ENV=local
 NODE_ENV=development
 ```
@@ -118,8 +133,8 @@ http://localhost:3000/swagger/docs
 The API documentation includes:
 - Interactive endpoint testing
 - Request/response schemas
-- Authentication requirements
-- Example payloads
+- Bearer (JWT) authentication
+- Tags by area: super-admin, company-admin, driver, customer, payment
 
 ## 🐳 Docker Setup
 
@@ -228,10 +243,12 @@ postgres://[user]:[password]@[host]:[port]/[database]
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `DB_URL` | PostgreSQL connection string | - | ✅ Yes |
-| `PORT` | Server port number | `3000` | No |
-| `HOST` | Server host address | `127.0.0.1` (dev) / `0.0.0.0` (prod) | No |
-| `APP_ENV` | Application environment (`local`, `development`, `production`) | `local` | No |
-| `NODE_ENV` | Node.js environment | `development` | No |
+| `JWT_SECRET` | Secret key for signing/verifying JWT | - | ✅ Yes |
+| `PORT` | Server port | `3000` | No |
+| `HOST` | Listen address | `127.0.0.1` (dev) / `0.0.0.0` (prod) | No |
+| `APP_ENV` | Environment (`local`, `development`, `production`) | `local` | No |
+| `NODE_ENV` | Node environment | `development` | No |
+| `CORS_ORIGIN` | Allowed CORS origin | `*` | No |
 
 ### Environment-Specific Behavior
 
@@ -243,50 +260,33 @@ postgres://[user]:[password]@[host]:[port]/[database]
 ```
 backend-fastify-setting/
 ├── src/
-│   ├── api/              # API route handlers
-│   │   └── auth/         # Authentication endpoints
-│   │       └── sign-up/  # Sign-up endpoint
-│   ├── app/              # Application setup and configuration
-│   │   ├── api.ts        # Fastify server setup
-│   │   ├── error-handler.ts
-│   │   └── jwt/          # JWT handler
-│   ├── business/         # Business logic layer
-│   │   └── auth/         # Authentication business logic
-│   ├── database/         # Database queries and commands
-│   │   └── auth/         # Auth-related database operations
-│   ├── datasource/       # Database connection and migrations
-│   │   ├── db.ts         # Kysely database instance
-│   │   └── migrations/   # Database migration files
-│   ├── model/            # Data models and schemas
-│   │   ├── body/         # Request body schemas
-│   │   └── query/        # Query parameter schemas
-│   └── utils/            # Utility functions
-│       ├── password.ts   # Password hashing utilities
-│       └── token.ts      # JWT token utilities
-├── dist/                 # Compiled JavaScript (generated)
-├── .github/
-│   └── workflows/
-│       └── docker.yml    # GitHub Actions CI/CD pipeline
-├── Dockerfile.prod       # Production Docker image
-├── docker-compose.db.yml # Database Docker Compose configuration
-├── docker-compose.prod.yml # Production Docker Compose configuration
-├── Jenkinsfile           # Jenkins CI/CD pipeline
-├── kysely.config.ts      # Kysely migration configuration
+│   ├── api/                    # API route handlers (path = URL)
+│   │   ├── auth/               # Sign-in, password
+│   │   ├── super-admin/        # Dashboard, users, company-admins, bus-company
+│   │   ├── company-admin/     # Profile, drivers, staff, vehicles
+│   │   ├── company-admin-operator/    # Stations, trip-schedule, trip-price-template
+│   │   ├── company-admin-support/     # Tickets, coupons
+│   │   ├── company-admin-accountant/  # Payments, revenue
+│   │   ├── driver/             # Trips, passengers, check-in
+│   │   ├── customer/           # Sign-up, booking, tickets, trips, coupons
+│   │   └── payment/            # Method, VNPay IPN
+│   ├── app/                    # Fastify setup, JWT, errors, plugins
+│   ├── business/               # Business logic (auth, booking, payment, organization, operation)
+│   ├── database/               # Kysely queries/commands (auth, booking, payment, organization, operation)
+│   ├── datasource/             # db.ts, migrations
+│   ├── model/                  # body/, query/, params/ (Zod schemas)
+│   └── utils/                  # password, common helpers
+├── Dockerfile.prod
+├── docker-compose.db.yml       # PostgreSQL for local dev
+├── docker-compose.prod.yml
+├── kysely.config.ts
 ├── package.json
-├── tsconfig.json
 └── README.md
 ```
 
 ## 🚢 CI/CD
 
 The project includes CI/CD pipelines for automated Docker builds and deployments:
-
-### GitHub Actions
-
-GitHub Actions workflow (`.github/workflows/docker.yml`) that:
-- Builds Docker image on push to `dev` branch
-- Pushes image to Docker Hub
-- Tags images with `latest` and commit SHA
 
 **Setup:**
 1. Create a repository on Docker Hub
@@ -375,14 +375,3 @@ TypeScript is configured with strict mode. Check types:
 yarn build
 ```
 
-## 📝 License
-
-[Add your license here]
-
-## 🤝 Contributing
-
-[Add contributing guidelines here]
-
-## 📞 Support
-
-[Add support information here]

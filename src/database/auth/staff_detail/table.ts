@@ -1,19 +1,20 @@
 import { GeneratedAlways, Insertable, Selectable, Updateable } from 'kysely'
 import { Timestamps } from '../../../datasource/helpers/common.js'
-import { AuthUserId, AuthUserStatus } from './type.js'
+import { AuthStaffDetailId, AuthUserStatus } from './type.js'
+import { AuthUserId } from '../user/type.js'
 import { OrganizationBusCompanyId } from '../../organization/bus_company/type.js'
 
 export interface AuthStaffDetailTable extends Timestamps {
-    id: GeneratedAlways<AuthUserId>
+    id: GeneratedAlways<AuthStaffDetailId>
     userId: AuthUserId
-    companyId: OrganizationBusCompanyId
-    staffCode: string
-    position: string
-    department: string
+    companyId: OrganizationBusCompanyId | null
+    staffCode: string | null
+    position: string | null
+    department: string | null
     phone: string
     email: string
-    identityNumber: string
-    hireDate: Date
+    identityNumber: string | null
+    hireDate: Date | null
     status: AuthUserStatus
 }
 

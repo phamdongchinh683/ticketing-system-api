@@ -48,12 +48,7 @@ pipeline {
         stage("Deploy") {
             steps {
                  sh '''
-                    if docker ps --filter "publish=5432" | grep -q postgres; then
-                        docker-compose -f docker-compose.prod.yml pull api
-                        docker-compose -f docker-compose.prod.yml up -d api
-                    else
                         docker-compose -f docker-compose.prod.yml up -d
-                    fi
                  '''
             }
         }

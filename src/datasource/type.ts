@@ -14,8 +14,10 @@ import { OrganizationBusCompanyTable } from '../database/organization/bus_compan
 import { OrganizationVehicleTable } from '../database/organization/vehicle/table.js'
 import { OrganizationSeatTable } from '../database/organization/seat/table.js'
 import { OperationRouteTable } from '../database/operation/route/table.js'
-import { OperationTripStopTable } from '../database/operation/trip_stop/table.js'
 import { OperationTripEventTable } from '../database/operation/trip_event/table.js'
+import { OperationTripScheduleTable } from '../database/operation/trip-schedule/table.js'
+import { OperationTripStopTemplateTable } from '../database/operation/trip-stop-template/table.js'
+import { OperationTripPriceTemplateTable } from '../database/operation/trip_price_template/table.js'
 
 export interface Database {
     'auth.user': AuthUserTable
@@ -34,6 +36,8 @@ export interface Database {
     'organization.vehicle': OrganizationVehicleTable
     'organization.seat': OrganizationSeatTable
     'operation.route': OperationRouteTable
-    'operation.trip_stop': OperationTripStopTable
     'operation.trip_event': OperationTripEventTable
+    'operation.trip_schedule': OperationTripScheduleTable
+    'operation.trip_stop_template': OperationTripStopTemplateTable
+    'operation.trip_price_template': OperationTripPriceTemplateTable
 }

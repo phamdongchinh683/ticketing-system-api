@@ -13,8 +13,6 @@ export interface BookingTicketTable extends Timestamps {
     seatId: OrganizationSeatId
     fromStationId: OperationStationId
     toStationId: OperationStationId
-    seatNumber: string
-    price: number
     status: BookingTicketStatus
 }
 

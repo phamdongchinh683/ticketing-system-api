@@ -7,9 +7,9 @@ import { AuthUserId } from '../../auth/user/type.js'
 export interface BookingTable extends Timestamps {
     id: GeneratedAlways<BookingId>
     userId: AuthUserId
-    couponId: BookingCouponId
+    couponId: BookingCouponId | null
     code: string
-    type: BookingType
+    bookingType: BookingType
     originalAmount: number
     discountAmount: number
     totalAmount: number

@@ -1,0 +1,34 @@
+import { api, endpoint, tags, bearer } from '../../../app/api.js'
+import { bus } from '../../../business/index.js'
+import { requireStaffProfileRole } from '../../../app/jwt/handler.js'
+import { AuthUserRole } from '../../../database/auth/user/type.js'
+import { AuthStaffProfileRole } from '../../../database/auth/staff_profile/type.js'
+import { CompanyAdminQuery } from '../../../model/query/company-admin/index.js'
+import { CompanyAdminListResponseSchema } from '../../../model/body/company-admin/index.js'
+
+const __filename = new URL('', import.meta.url).pathname
+
+api.route({
+    ...endpoint(__filename),
+    config: {
+        rateLimit: {
+            max: 10,
+            timeWindow: '1m',
+        },
+    },
+    handler: async request => {
+        requireStaffProfileRole(
+            request.headers,
+            [AuthUserRole.enum.admin],
+            [AuthStaffProfileRole.enum.super_admin]
+        )
+        return await bus.auth.superAdmin.listCompanyAdmins(request.query)
+    },
+
+    schema: {
+        querystring: CompanyAdminQuery,
+        response: { 200: CompanyAdminListResponseSchema },
+        tags: tags(__filename),
+        security: bearer,
+    },
+})
