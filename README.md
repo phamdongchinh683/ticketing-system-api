@@ -14,6 +14,7 @@ Backend for a **bus ticketing system**: multiple bus companies, routes, trip sch
 - **Customers**: Sign up, search trip schedules, book seats, manage tickets and coupons.
 - **Payments**: Payment method creation and VNPay IPN webhook.
 
+
 ## 🚀 Features
 
 - ⚡ **Fastify** – High-performance web framework
