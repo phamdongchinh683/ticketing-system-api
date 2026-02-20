@@ -1,4 +1,4 @@
-# Bus Ticketing System – Backend API
+# Ticketing System – Backend API
 
 Backend for a **bus ticketing system**: multiple bus companies, routes, trip schedules, seat booking, and online payments.
 
@@ -39,7 +39,7 @@ Backend for a **bus ticketing system**: multiple bus companies, routes, trip sch
 
 ```bash
 git clone <repository-url>
-cd backend-fastify-setting
+cd ticketing-system-api
 ```
 
 ### 2. Install Dependencies
