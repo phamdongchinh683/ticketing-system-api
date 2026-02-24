@@ -37,7 +37,7 @@ export async function findByScheduleIdAndDepartureDate(
 
 export async function createTripTransaction(params: TripBody) {
     return db.transaction().execute(async trx => {
-        const { scheduleId, departureDate ,companyId } = params
+        const { scheduleId, departureDate, companyId } = params
 
         const result = await findByScheduleIdAndDepartureDate({ scheduleId, departureDate }, trx)
 
