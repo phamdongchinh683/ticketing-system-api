@@ -7,7 +7,7 @@ export interface AuditLogTable extends Timestamps {
     id: GeneratedAlways<AuditLogId>
     userId: AuthUserId
     action: string
-    tableName: string
+    targetType: string
     targetId: string
     oldData: JSON
     newData: JSON
