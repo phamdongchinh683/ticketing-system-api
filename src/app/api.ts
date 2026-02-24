@@ -1,6 +1,7 @@
 import Fastify, { type FastifyInstance } from 'fastify'
 import swagger from '@fastify/swagger'
 import swaggerUI from '@fastify/swagger-ui'
+import fastifyStatic from '@fastify/static'
 import {
     jsonSchemaTransform,
     serializerCompiler,
@@ -25,6 +26,7 @@ const __dirname = dirname(__filename)
 
 const rootDir = path.join(__dirname, '..')
 const apiDir = path.join(rootDir, 'api')
+const publicDir = path.join(rootDir, '..', 'public')
 const isProduction = process.env.NODE_ENV === 'production'
 
 const api = Fastify({
@@ -118,6 +120,10 @@ const start = async () => {
         await api.register(compressPlugin)
         await api.register(corsPlugin)
         await api.register(errorHandlerPlugin)
+        await api.register(fastifyStatic, {
+            root: publicDir,
+            prefix: '/',
+        })
         await api.register(swagger, {
             openapi: {
                 info: {

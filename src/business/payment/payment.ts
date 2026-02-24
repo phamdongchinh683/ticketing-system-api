@@ -1,7 +1,7 @@
 import { dal } from '../../database/index.js'
 import { utils } from '../../utils/index.js'
 import { PaymentMethodRequest } from '../../model/query/payment/index.js'
-import { PaymentId, PaymentMethod, PaymentStatus } from '../../database/payment/payment/type.js'
+import {  PaymentMethod, PaymentStatus } from '../../database/payment/payment/type.js'
 import { service } from '../../service/index.js'
 import { HttpErr } from '../../app/index.js'
 import { BookingId } from '../../database/booking/booking/type.js'
@@ -9,6 +9,7 @@ import { db } from '../../datasource/db.js'
 import { AuthUserId } from '../../database/auth/user/type.js'
 import { OrganizationBusCompanyId } from '../../database/organization/bus_company/type.js'
 import { PaymentFilter } from '../../model/query/payment/index.js'
+import { FastifyReply } from 'fastify'
 
 async function preparePayment(bookingId: BookingId, method: PaymentMethod) {
     let payment = await dal.payment.payment.query.getPayment(bookingId)
@@ -96,7 +97,7 @@ export async function createVnpayPayment(params: PaymentMethodRequest, ip: strin
     }
 }
 
-export async function vnpayIpn(query: Record<string, string>) {
+export async function vnpayIpn(query: Record<string, string>, reply: FastifyReply) {
     const vnpParams = service.vnpay.verifyIpn(query)
 
     if ('RspCode' in vnpParams) {
@@ -126,11 +127,13 @@ export async function vnpayIpn(query: Record<string, string>) {
 
         if (vnp_ResponseCode !== '00') {
             await dal.payment.payment.cmd.updatePaymentStatusFailed(vnp_TxnRef, tx)
-            return { RspCode: '24', Message: 'Payment failed' }
+            reply.redirect('/payment-failed.html')
+            return
         }
 
         await dal.payment.payment.cmd.updatePaymentStatusSuccess(vnp_TxnRef, vnp_TransactionNo, tx)
-        return { RspCode: '00', Message: 'Confirm Success' }
+        reply.redirect('/payment-success.html')
+        return
     })
 }
 
