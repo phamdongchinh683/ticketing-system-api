@@ -17,12 +17,13 @@ export async function findByNameOrHotline(
 }
 
 export async function findAll(query: BusCompanyListQuery) {
-    const { limit, next } = query
+    const { limit, next, name } = query
     return db
         .selectFrom('organization.bus_company as bc')
         .selectAll()
         .where(eb => {
             const cond = []
+            if (name) cond.push(eb('bc.name', 'ilike', `%${name}%`))
             if (next) cond.push(eb('bc.id', '>', next))
             return eb.and(cond)
         })
